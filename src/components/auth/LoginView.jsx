@@ -6,23 +6,29 @@ export const LoginView = () => {
   const { setActiveTab, changeRole } = useApp();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [step, setStep] = useState('login'); // login | passcode_verify
+  const [targetRole, setTargetRole] = useState('unplaced_member');
   const [accessCode, setAccessCode] = useState('');
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
+    setTargetRole('unplaced_member');
+    setStep('passcode_verify');
+  };
+
+  const handleAdminDirectLogin = () => {
+    setTargetRole('exec_admin');
     setStep('passcode_verify');
   };
 
   const handleVerifyPasscode = (e) => {
     e.preventDefault();
-    changeRole('unplaced_member');
-    setActiveTab('dashboard');
-  };
-
-  const handleAdminDirectLogin = () => {
-    changeRole('exec_admin');
-    setActiveTab('admin_overview');
+    if (targetRole === 'exec_admin') {
+      changeRole('exec_admin');
+      setActiveTab('admin_overview');
+    } else {
+      changeRole('unplaced_member');
+      setActiveTab('dashboard');
+    }
   };
 
   return (

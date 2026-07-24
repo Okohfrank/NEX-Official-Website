@@ -16,7 +16,8 @@ export const Navbar = () => {
     setActiveTab,
     userRole,
     currentUser,
-    notifications
+    notifications,
+    logout
   } = useApp();
 
   const [showNotifications, setShowNotifications] = useState(false);
@@ -171,7 +172,7 @@ export const Navbar = () => {
               </div>
 
               <button
-                onClick={() => { changeRole('public'); setActiveTab('home'); }}
+                onClick={() => logout()}
                 className="px-3 py-1.5 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-xl border border-red-200/60 transition-all flex items-center gap-1"
                 title="Log Out"
               >

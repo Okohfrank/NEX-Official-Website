@@ -40,15 +40,20 @@ export const AppProvider = ({ children }) => {
     document.documentElement.classList.remove('dark');
   }, []);
 
+  // Helper logout action
+  const logout = () => {
+    setUserRole('public');
+    setCurrentUser(MOCK_USER_PROFILES.publicGuest);
+    setActiveTab('home');
+  };
+
   // Update current user profile when role changes
   const changeRole = (newRole) => {
     setUserRole(newRole);
     switch (newRole) {
       case 'public':
         setCurrentUser(MOCK_USER_PROFILES.publicGuest);
-        if (!['home', 'about', 'executives', 'showcase', 'partnerships', 'publications'].includes(activeTab)) {
-          setActiveTab('home');
-        }
+        setActiveTab('home');
         break;
       case 'unplaced_member':
         setCurrentUser(MOCK_USER_PROFILES.unplacedStudent);
@@ -111,6 +116,7 @@ export const AppProvider = ({ children }) => {
   const value = {
     userRole,
     changeRole,
+    logout,
     currentUser,
     activeTab,
     setActiveTab,

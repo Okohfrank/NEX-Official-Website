@@ -19,13 +19,12 @@ import {
 } from 'lucide-react';
 
 export const Sidebar = () => {
-  const { userRole, activeTab, setActiveTab, currentUser, changeRole } = useApp();
+  const { userRole, activeTab, setActiveTab, currentUser, logout } = useApp();
 
   if (userRole === 'public') return null;
 
   const handleLogout = () => {
-    changeRole('public');
-    setActiveTab('home');
+    logout();
   };
 
   const getNavSections = () => {
