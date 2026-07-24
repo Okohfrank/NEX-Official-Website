@@ -117,7 +117,7 @@ const AppContent = () => {
     }
   };
 
-  // Left sidebar should ONLY be visible when viewing workspace pages (dashboard, mygroup, research, etc.)
+  // Workspace views should NOT show public footer and should use expansive flex layout
   const isWorkspaceView = [
     'dashboard', 'mygroup', 'research', 'proposal', 'build', 'publish',
     'leaderboard', 'bounties', 'events', 'directory',
@@ -129,8 +129,8 @@ const AppContent = () => {
       {/* Top Fixed Header */}
       <Navbar />
 
-      {/* Main Container */}
-      <div className={`flex-1 w-full ${isWorkspaceView ? 'px-4 sm:px-8 lg:px-16 py-6 flex flex-col md:flex-row gap-6' : 'px-0 py-0'}`}>
+      {/* Main Expansive Container */}
+      <div className={`flex-1 w-full ${isWorkspaceView ? 'max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6' : 'px-0 py-0'}`}>
         {isWorkspaceView && <Sidebar />}
         <main className="flex-1 min-w-0">
           {isWorkspaceView && <MobileWorkspaceBar />}
@@ -138,8 +138,11 @@ const AppContent = () => {
         </main>
       </div>
 
-      {/* Footer */}
-      <Footer />
+      {/* Public Footer (Hidden in Dashboard / Workspace Views) */}
+      {!isWorkspaceView && <Footer />}
+
+      {/* Role Simulator floating pill */}
+      <RoleSwitcherBar />
     </div>
   );
 };

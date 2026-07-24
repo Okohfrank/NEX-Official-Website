@@ -58,10 +58,10 @@ export const Sidebar = () => {
   const { memberCore, workspaceItems, communityItems, adminItems } = getNavSections();
 
   return (
-    <aside className="hidden md:block w-64 shrink-0 bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-4 space-y-6 shadow-sm h-fit">
+    <aside className="hidden md:block w-64 lg:w-72 shrink-0 bg-white rounded-3xl border border-slate-200/90 p-5 space-y-6 shadow-sm h-fit sticky top-24 self-start">
       {/* Nav Group: Member Core */}
       <div>
-        <h4 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest px-2 mb-2">
+        <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest px-2 mb-2">
           Member Hub
         </h4>
         <div className="space-y-1">
@@ -72,10 +72,10 @@ export const Sidebar = () => {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                   active
-                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-md'
-                    : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
+                    ? 'bg-[#2FA137] text-white shadow-md shadow-emerald-600/20'
+                    : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -89,7 +89,7 @@ export const Sidebar = () => {
       {/* Nav Group: Research & Build Workspaces */}
       {workspaceItems.length > 0 && (
         <div>
-          <h4 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest px-2 mb-2">
+          <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest px-2 mb-2">
             Pipeline Workspaces
           </h4>
           <div className="space-y-1">
@@ -100,10 +100,10 @@ export const Sidebar = () => {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                     active
-                      ? 'bg-black text-white dark:bg-white dark:text-black shadow-md'
-                      : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
+                      ? 'bg-[#2FA137] text-white shadow-md shadow-emerald-600/20'
+                      : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -117,7 +117,7 @@ export const Sidebar = () => {
 
       {/* Nav Group: Community Tools */}
       <div>
-        <h4 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest px-2 mb-2">
+        <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest px-2 mb-2">
           Community & Recognition
         </h4>
         <div className="space-y-1">
@@ -128,10 +128,10 @@ export const Sidebar = () => {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                   active
-                    ? 'bg-black text-white dark:bg-white dark:text-black shadow-md'
-                    : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
+                    ? 'bg-[#2FA137] text-white shadow-md shadow-emerald-600/20'
+                    : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -144,8 +144,8 @@ export const Sidebar = () => {
 
       {/* Nav Group: Admin Console */}
       {userRole === 'exec_admin' && (
-        <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800">
-          <h4 className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-widest px-2 mb-2 flex items-center gap-1.5">
+        <div className="pt-3 border-t border-slate-100">
+          <h4 className="text-[10px] font-extrabold text-[#2FA137] uppercase tracking-widest px-2 mb-2 flex items-center gap-1.5">
             <ShieldAlert className="w-3.5 h-3.5" />
             <span>Exec Administration</span>
           </h4>
@@ -157,13 +157,13 @@ export const Sidebar = () => {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                     active
-                      ? 'bg-black text-white dark:bg-white dark:text-black shadow-md'
-                      : 'text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
+                      ? 'bg-[#060721] text-white shadow-md'
+                      : 'text-slate-700 hover:bg-slate-100/80 hover:text-[#060721]'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-4 h-4 text-[#2FA137]" />
                   <span>{item.label}</span>
                 </button>
               );
@@ -172,14 +172,14 @@ export const Sidebar = () => {
         </div>
       )}
 
-      {/* Subtle Sidebar Bottom Profile Tile */}
-      <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-xl bg-black dark:bg-white text-white dark:text-black font-extrabold text-xs flex items-center justify-center shrink-0">
+      {/* Sidebar Bottom Profile Tile */}
+      <div className="pt-3 border-t border-slate-100 flex items-center gap-2.5">
+        <div className="w-8 h-8 rounded-xl bg-[#060721] text-white font-black text-xs flex items-center justify-center shrink-0">
           {currentUser.name ? currentUser.name[0] : 'U'}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-extrabold text-black dark:text-white truncate">{currentUser.name}</p>
-          <p className="text-[10px] text-zinc-400 capitalize truncate">{userRole.replace('_', ' ')}</p>
+          <p className="text-xs font-black text-[#060721] truncate">{currentUser.name || 'Member'}</p>
+          <p className="text-[10px] text-slate-500 font-semibold truncate capitalize">{userRole.replace(/_/g, ' ')}</p>
         </div>
       </div>
     </aside>
