@@ -117,7 +117,6 @@ const AppContent = () => {
     }
   };
 
-  // Workspace views should NOT show public footer and should use expansive flex layout
   const isWorkspaceView = [
     'dashboard', 'mygroup', 'research', 'proposal', 'build', 'publish',
     'leaderboard', 'bounties', 'events', 'directory',
@@ -125,14 +124,14 @@ const AppContent = () => {
   ].includes(activeTab);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-slate-900 selection:bg-emerald-600 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50/50 text-slate-900 selection:bg-emerald-600 selection:text-white">
       {/* Top Fixed Header */}
       <Navbar />
 
-      {/* Main Expansive Container */}
-      <div className={`flex-1 w-full ${isWorkspaceView ? 'max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6' : 'px-0 py-0'}`}>
+      {/* Main Container */}
+      <div className={`flex-1 w-full ${isWorkspaceView ? 'flex flex-col md:flex-row min-h-[calc(100vh-5rem)]' : 'px-0 py-0'}`}>
         {isWorkspaceView && <Sidebar />}
-        <main className="flex-1 min-w-0">
+        <main className={`flex-1 min-w-0 ${isWorkspaceView ? 'p-4 sm:p-8 max-w-full' : ''}`}>
           {isWorkspaceView && <MobileWorkspaceBar />}
           {renderMainContent()}
         </main>

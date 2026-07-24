@@ -6,7 +6,8 @@ import {
   Menu,
   X,
   UserPlus,
-  ChevronRight
+  ChevronRight,
+  LogOut
 } from 'lucide-react';
 
 export const Navbar = () => {
@@ -156,16 +157,27 @@ export const Navbar = () => {
             </div>
           ) : (
             /* Logged in User Badge ON HEADER */
-            <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
-              <div className="w-5 h-5 rounded-full bg-[#2FA137] text-white font-bold text-[10px] flex items-center justify-center">
-                {currentUser.name ? currentUser.name[0] : 'U'}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+                <div className="w-5 h-5 rounded-full bg-[#2FA137] text-white font-bold text-[10px] flex items-center justify-center">
+                  {currentUser.name ? currentUser.name[0] : 'U'}
+                </div>
+                <span className="text-xs font-bold text-slate-900 hidden sm:block">
+                  {currentUser.name}
+                </span>
+                <span className="text-[10px] font-extrabold text-slate-600 bg-slate-200 px-2 py-0.5 rounded-md hidden md:block capitalize">
+                  {userRole.replace('_', ' ')}
+                </span>
               </div>
-              <span className="text-xs font-bold text-slate-900 hidden sm:block">
-                {currentUser.name}
-              </span>
-              <span className="text-[10px] font-extrabold text-slate-600 bg-slate-200 px-2 py-0.5 rounded-md hidden md:block capitalize">
-                {userRole.replace('_', ' ')}
-              </span>
+
+              <button
+                onClick={() => { changeRole('public'); setActiveTab('home'); }}
+                className="px-3 py-1.5 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-xl border border-red-200/60 transition-all flex items-center gap-1"
+                title="Log Out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Log Out</span>
+              </button>
             </div>
           )}
 

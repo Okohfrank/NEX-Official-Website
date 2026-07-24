@@ -1,34 +1,76 @@
-import React, { useState } from 'react';
-import { GlassCard } from '../UI/GlassCard';
-import { Badge } from '../UI/Badge';
-import { UserCheck, Users, Plus, CheckCircle2, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
+import { UserCheck, Users, Plus, CheckCircle2, Sparkles, RefreshCw } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const PlacementEngine = () => {
   const [unplacedMembers, setUnplacedMembers] = useState([
-    { id: 1, name: "David Olanrewaju", dept: "Engineering (Electrical)", level: "300L", focus: "Energy", skills: ["Embedded Systems", "Circuit Design"] },
-    { id: 2, name: "Blessing Okon", dept: "Environmental Sciences", level: "400L", focus: "Waste", skills: ["GIS", "Urban Planning"] },
-    { id: 3, name: "Emmanuel Kalu", dept: "Agriculture (Agronomy)", level: "300L", focus: "Agriculture", skills: ["Soil Science", "Hydroponics"] },
-    { id: 4, name: "Seyi Makinde", dept: "Engineering (Mechanical)", level: "500L", focus: "Water", skills: ["CAD 3D", "Fluid Dynamics"] },
-    { id: 5, name: "Zainab Bello", dept: "Engineering (Computer)", level: "400L", focus: "Digital Innovation", skills: ["Python", "IoT", "AI"] }
+    { id: '1', full_name: "David Olanrewaju", department: "Faculty of Engineering (Electrical)", level: "300L", focus: "Energy", skills: ["Embedded Systems", "Circuit Design"] },
+    { id: '2', full_name: "Blessing Okon", department: "Faculty of Environmental Sciences (Building Tech)", level: "400L", focus: "Waste", skills: ["GIS", "Urban Planning"] },
+    { id: '3', full_name: "Emmanuel Kalu", department: "Faculty of Agriculture (Agronomy)", level: "300L", focus: "Agriculture", skills: ["Soil Science", "Hydroponics"] },
+    { id: '4', full_name: "Seyi Makinde", department: "Faculty of Engineering (Mechanical)", level: "500L", focus: "Water", skills: ["CAD 3D", "Fluid Dynamics"] },
+    { id: '5', full_name: "Zainab Bello", department: "Faculty of Science (Computer Science)", level: "400L", focus: "Digital Innovation", skills: ["Python", "IoT", "AI"] }
   ]);
 
-  const [placedGroups, setPlacedGroups] = useState([
-    { name: "Group Gamma - Smart Agriculture", focus: "Agriculture", membersCount: 5 }
-  ]);
+  const [placedGroups, setPlacedGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleAutoAssemble = () => {
+  const fetchPlacementData = async () => {
+    setLoading(true);
+    try {
+      // Fetch groups
+      const { data: groups } = await supabase.from('placed_groups').select('*').order('created_at', { ascending: false });
+      if (groups && groups.length > 0) {
+        setPlacedGroups(groups);
+      } else {
+        setPlacedGroups([
+          { id: 'g1', name: "Group Gamma - Smart Agriculture", focus: "Agriculture", members_count: 5 }
+        ]);
+      }
+
+      // Fetch profiles that are unplaced
+      const { data: profiles } = await supabase.from('profiles').select('*').eq('role', 'unplaced_member');
+      if (profiles && profiles.length > 0) {
+        setUnplacedMembers(profiles.map(p => ({
+          id: p.id,
+          full_name: p.full_name || 'Verified Member',
+          department: p.department || 'Engineering',
+          level: p.level || '300L',
+          focus: p.skills ? p.skills.split(',')[0] : 'Energy',
+          skills: p.skills ? p.skills.split(',') : ['Engineering', 'Design']
+        })));
+      }
+    } catch (err) {
+      // Smooth fallback
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlacementData();
+  }, []);
+
+  const handleAutoAssemble = async () => {
     confetti({ particleCount: 90, spread: 60, origin: { y: 0.6 } });
-    setPlacedGroups([
-      ...placedGroups,
-      { name: "Group Delta - Interdisciplinary Energy Team", focus: "Energy", membersCount: 5 }
-    ]);
+    
+    const newGroupName = `Group ${String.fromCharCode(65 + placedGroups.length)} - Interdisciplinary Team`;
+    const newGroupObj = { name: newGroupName, focus: "Energy & Infrastructure", members_count: unplacedMembers.length || 5 };
+
+    setPlacedGroups([newGroupObj, ...placedGroups]);
     setUnplacedMembers([]);
+
+    try {
+      await supabase.from('placed_groups').insert([{ name: newGroupName, focus: "Energy & Infrastructure", members_count: 5 }]);
+      await supabase.from('profiles').update({ role: 'placed_member' }).eq('role', 'unplaced_member');
+    } catch (err) {
+      // Error handling
+    }
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in bg-white p-4 sm:p-6 rounded-3xl border border-slate-200/80 shadow-xs">
-      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/90 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 animate-in fade-in w-full">
+      <div className="p-6 sm:p-8 bg-white border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#e6f6e8] text-[#2FA137] text-xs font-bold border border-emerald-200/60 mb-1">
             <Sparkles className="w-3.5 h-3.5" />
@@ -38,21 +80,30 @@ export const PlacementEngine = () => {
           <p className="text-xs text-slate-600 font-medium">Assembles verified students into 5-6 member teams across Engineering, Agriculture, and Environmental Sciences.</p>
         </div>
 
-        <button
-          onClick={handleAutoAssemble}
-          disabled={unplacedMembers.length === 0}
-          className={`flex items-center gap-2 font-bold text-xs px-5 py-3 rounded-xl shadow-md transition-all ${
-            unplacedMembers.length > 0
-              ? 'bg-[#2FA137] hover:bg-[#26892c] text-white shadow-emerald-600/20'
-              : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-          }`}
-        >
-          <Sparkles className="w-4 h-4" />
-          <span>Auto-Balance & Assemble 5-Member Team</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={fetchPlacementData}
+            className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all"
+            title="Refresh Live Pool"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+          <button
+            onClick={handleAutoAssemble}
+            disabled={unplacedMembers.length === 0}
+            className={`flex items-center gap-2 font-bold text-xs px-5 py-3 rounded-xl shadow-md transition-all ${
+              unplacedMembers.length > 0
+                ? 'bg-[#2FA137] hover:bg-[#26892c] text-white shadow-emerald-600/20'
+                : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Auto-Balance & Assemble 5-Member Team</span>
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Unplaced Pool */}
         <div className="lg:col-span-6 space-y-4">
           <h3 className="font-black text-sm text-[#060721] flex items-center gap-2">
@@ -61,20 +112,20 @@ export const PlacementEngine = () => {
           </h3>
 
           {unplacedMembers.length === 0 ? (
-            <div className="bg-white rounded-2xl p-8 border border-slate-200 text-center text-xs text-slate-500 font-medium">
+            <div className="bg-white p-8 border border-slate-200 text-center text-xs text-slate-500 font-medium">
               <CheckCircle2 className="w-8 h-8 text-[#2FA137] mx-auto mb-2" />
               All verified members placed into interdisciplinary groups for 2026 First Cycle!
             </div>
           ) : (
             <div className="space-y-3">
               {unplacedMembers.map(m => (
-                <div key={m.id} className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs space-y-2">
+                <div key={m.id} className="bg-white p-4 border border-slate-200/90 shadow-xs space-y-2">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-bold text-[#060721] text-xs">{m.name} ({m.level})</h4>
-                      <p className="text-[11px] text-slate-500">{m.dept}</p>
+                      <h4 className="font-bold text-[#060721] text-xs">{m.full_name} ({m.level})</h4>
+                      <p className="text-[11px] text-slate-500">{m.department}</p>
                     </div>
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-[#2FA137] border border-emerald-200">{m.focus}</span>
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-[#2FA137] border border-emerald-200">{m.focus || 'Energy'}</span>
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {m.skills.map((s, i) => (
@@ -91,15 +142,15 @@ export const PlacementEngine = () => {
         <div className="lg:col-span-6 space-y-4">
           <h3 className="font-black text-sm text-[#060721] flex items-center gap-2">
             <UserCheck className="w-4 h-4 text-[#2FA137]" />
-            <span>Assembled Interdisciplinary Groups</span>
+            <span>Assembled Interdisciplinary Groups ({placedGroups.length})</span>
           </h3>
 
           <div className="space-y-3">
             {placedGroups.map((g, i) => (
-              <div key={i} className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs flex items-center justify-between">
+              <div key={i} className="bg-white p-4 border border-slate-200/90 shadow-xs flex items-center justify-between">
                 <div>
                   <h4 className="font-black text-[#060721] text-sm">{g.name}</h4>
-                  <p className="text-xs text-[#2FA137] font-semibold">{g.focus} Focus Area • {g.membersCount} Members</p>
+                  <p className="text-xs text-[#2FA137] font-semibold">{g.focus} Focus Area • {g.members_count || 5} Members</p>
                 </div>
                 <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-[#2FA137] border border-emerald-200">Placed</span>
               </div>
