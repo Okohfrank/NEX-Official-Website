@@ -86,6 +86,18 @@ export const LoginView = () => {
             <span>Sign In to Member Portal</span>
             <ArrowRight className="w-4 h-4" />
           </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              changeRole('exec_admin');
+              setActiveTab('admin_overview');
+            }}
+            className="w-full py-3 rounded-xl bg-[#060721] hover:bg-[#060721]/90 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
+          >
+            <ShieldCheck className="w-4 h-4 text-[#2FA137]" />
+            <span>Sign In as Executive Admin</span>
+          </button>
         </form>
 
         <div className="text-center text-xs text-slate-500 border-t border-slate-100 pt-4 font-medium">
