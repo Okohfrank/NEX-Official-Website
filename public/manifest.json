@@ -1,0 +1,22 @@
+{
+  "short_name": "NEX",
+  "name": "NEX — Network of Engineering Xcellence",
+  "description": "Operating System & Innovation Platform for LASU Engineering, Agriculture & Environmental Sciences",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#060721",
+  "display": "standalone",
+  "orientation": "portrait"
+}
