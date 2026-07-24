@@ -6,6 +6,7 @@ export const LoginView = () => {
   const { setActiveTab, changeRole } = useApp();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [step, setStep] = useState('login');
   const [targetRole, setTargetRole] = useState('unplaced_member');
   const [accessCode, setAccessCode] = useState('');
 
