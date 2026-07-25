@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { UserCheck, Users, Plus, CheckCircle2, Sparkles, RefreshCw } from 'lucide-react';
+import { UserCheck, Users, Plus, CheckCircle2, Sparkles, RefreshCw, User, ShieldCheck } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const PlacementEngine = () => {
@@ -12,23 +12,26 @@ export const PlacementEngine = () => {
     { id: '5', full_name: "Zainab Bello", department: "Faculty of Science (Computer Science)", level: "400L", focus: "Digital Innovation", skills: ["Python", "IoT", "AI"] }
   ]);
 
-  const [placedGroups, setPlacedGroups] = useState([]);
+  const [placedGroups, setPlacedGroups] = useState([
+    { id: 'g1', name: "Group Gamma - Smart Agriculture", focus: "Agriculture", members_count: 5, teamLead: "Emmanuel Kalu", mentor: "Engr. Dr. Charles Nwankwo" }
+  ]);
   const [loading, setLoading] = useState(true);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [newLead, setNewLead] = useState('');
+  const [newMentor, setNewMentor] = useState('');
 
   const fetchPlacementData = async () => {
     setLoading(true);
     try {
-      // Fetch groups
       const { data: groups } = await supabase.from('placed_groups').select('*').order('created_at', { ascending: false });
       if (groups && groups.length > 0) {
-        setPlacedGroups(groups);
-      } else {
-        setPlacedGroups([
-          { id: 'g1', name: "Group Gamma - Smart Agriculture", focus: "Agriculture", members_count: 5 }
-        ]);
+        setPlacedGroups(groups.map(g => ({
+          ...g,
+          teamLead: g.team_lead || 'Seyi Makinde',
+          mentor: g.mentor || 'Engr. Dr. Charles Nwankwo'
+        })));
       }
 
-      // Fetch profiles that are unplaced
       const { data: profiles } = await supabase.from('profiles').select('*').eq('role', 'unplaced_member');
       if (profiles && profiles.length > 0) {
         setUnplacedMembers(profiles.map(p => ({
@@ -55,7 +58,14 @@ export const PlacementEngine = () => {
     confetti({ particleCount: 90, spread: 60, origin: { y: 0.6 } });
     
     const newGroupName = `Group ${String.fromCharCode(65 + placedGroups.length)} - Interdisciplinary Team`;
-    const newGroupObj = { name: newGroupName, focus: "Energy & Infrastructure", members_count: unplacedMembers.length || 5 };
+    const newGroupObj = { 
+      id: `g-${Date.now()}`,
+      name: newGroupName, 
+      focus: "Energy & Infrastructure", 
+      members_count: unplacedMembers.length || 5,
+      teamLead: unplacedMembers[0]?.full_name || "David Olanrewaju",
+      mentor: "Engr. Dr. Charles Nwankwo"
+    };
 
     setPlacedGroups([newGroupObj, ...placedGroups]);
     setUnplacedMembers([]);
@@ -68,15 +78,32 @@ export const PlacementEngine = () => {
     }
   };
 
+  const handleSaveGroupLeadership = (groupId) => {
+    setPlacedGroups(prev => prev.map(g => {
+      if (g.id === groupId) {
+        return {
+          ...g,
+          teamLead: newLead || g.teamLead,
+          mentor: newMentor || g.mentor
+        };
+      }
+      return g;
+    }));
+    setSelectedGroup(null);
+    setNewLead('');
+    setNewMentor('');
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in w-full">
+      {/* Header Banner */}
       <div className="p-6 sm:p-8 bg-white border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#e6f6e8] text-[#2FA137] text-xs font-bold border border-emerald-200/60 mb-1">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>INTERDISCIPLINARY PLACEMENT ENGINE</span>
+            <span>INTERDISCIPLINARY PLACEMENT & TEAM ENGINE</span>
           </div>
-          <h1 className="text-2xl font-black text-[#060721]">Admin Group Placement Control</h1>
+          <h1 className="text-2xl font-black text-[#060721]">Admin Group Placement & Mentor Designation</h1>
           <p className="text-xs text-slate-600 font-medium">Assembles verified students into 5-6 member teams across Engineering, Agriculture, and Environmental Sciences.</p>
         </div>
 
@@ -138,7 +165,7 @@ export const PlacementEngine = () => {
           )}
         </div>
 
-        {/* Assembled Groups */}
+        {/* Assembled Groups & Mentor Designation */}
         <div className="lg:col-span-6 space-y-4">
           <h3 className="font-black text-sm text-[#060721] flex items-center gap-2">
             <UserCheck className="w-4 h-4 text-[#2FA137]" />
@@ -146,13 +173,75 @@ export const PlacementEngine = () => {
           </h3>
 
           <div className="space-y-3">
-            {placedGroups.map((g, i) => (
-              <div key={i} className="bg-white p-4 border border-slate-200/90 shadow-xs flex items-center justify-between">
-                <div>
-                  <h4 className="font-black text-[#060721] text-sm">{g.name}</h4>
-                  <p className="text-xs text-[#2FA137] font-semibold">{g.focus} Focus Area • {g.members_count || 5} Members</p>
+            {placedGroups.map((g) => (
+              <div key={g.id} className="bg-white p-5 border border-slate-200/90 shadow-xs space-y-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h4 className="font-black text-[#060721] text-sm">{g.name}</h4>
+                    <p className="text-xs text-[#2FA137] font-semibold">{g.focus} Focus Area • {g.members_count || 5} Members</p>
+                  </div>
+                  <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-[#2FA137] border border-emerald-200">Placed</span>
                 </div>
-                <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-[#2FA137] border border-emerald-200">Placed</span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase block">Designated Team Lead:</span>
+                    <span className="font-bold text-[#060721] flex items-center gap-1 mt-0.5">
+                      <User className="w-3 h-3 text-[#2FA137]" />
+                      <span>{g.teamLead}</span>
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase block">Assigned Faculty Mentor:</span>
+                    <span className="font-bold text-[#060721] flex items-center gap-1 mt-0.5">
+                      <ShieldCheck className="w-3 h-3 text-[#2FA137]" />
+                      <span>{g.mentor}</span>
+                    </span>
+                  </div>
+                </div>
+
+                {selectedGroup === g.id ? (
+                  <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 space-y-2 text-xs">
+                    <p className="font-bold text-[#060721]">Assign Team Lead & Mentor:</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        placeholder="Team Lead Name..."
+                        value={newLead}
+                        onChange={e => setNewLead(e.target.value)}
+                        className="p-2 rounded-lg border border-slate-300 text-xs font-medium"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Faculty Mentor Name..."
+                        value={newMentor}
+                        onChange={e => setNewMentor(e.target.value)}
+                        className="p-2 rounded-lg border border-slate-300 text-xs font-medium"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleSaveGroupLeadership(g.id)}
+                        className="px-3 py-1.5 bg-[#2FA137] text-white font-bold rounded-lg text-xs"
+                      >
+                        Save Assignment
+                      </button>
+                      <button
+                        onClick={() => setSelectedGroup(null)}
+                        className="px-3 py-1.5 bg-slate-200 text-slate-700 font-bold rounded-lg text-xs"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => { setSelectedGroup(g.id); setNewLead(g.teamLead); setNewMentor(g.mentor); }}
+                    className="text-xs font-bold text-[#2FA137] hover:underline block"
+                  >
+                    Edit Team Lead & Mentor Assignment →
+                  </button>
+                )}
               </div>
             ))}
           </div>

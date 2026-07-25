@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Shield, User, Users, Hammer, Eye, SlidersHorizontal, X } from 'lucide-react';
+import { Shield, User, Users, Hammer, Eye, SlidersHorizontal, X, RotateCcw } from 'lucide-react';
 
 export const RoleSwitcherBar = () => {
-  const { userRole, changeRole } = useApp();
+  const { userRole, changeRole, resetAllData } = useApp();
   const [open, setOpen] = useState(false);
 
   const roles = [
@@ -42,7 +42,7 @@ export const RoleSwitcherBar = () => {
                   }}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                     active
-                      ? 'bg-white text-black font-bold shadow-md'
+                      ? 'bg-[#2FA137] text-white font-black shadow-md'
                       : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
                   }`}
                 >
@@ -52,14 +52,27 @@ export const RoleSwitcherBar = () => {
               );
             })}
           </div>
+
+          <div className="pt-2 border-t border-zinc-800">
+            <button
+              onClick={() => {
+                resetAllData();
+                setOpen(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset Session Storage</span>
+            </button>
+          </div>
         </div>
       ) : (
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black font-bold text-xs px-4 py-3 rounded-full shadow-2xl border border-zinc-700 hover:scale-105 transition-all"
+          className="flex items-center gap-2 bg-[#060721] text-white font-extrabold text-xs px-4 py-3 rounded-full shadow-2xl border border-zinc-700 hover:scale-105 transition-all"
         >
-          <SlidersHorizontal className="w-4 h-4" />
-          <span>Simulate Role ({userRole.replace('_', ' ')})</span>
+          <SlidersHorizontal className="w-4 h-4 text-[#2FA137]" />
+          <span>Simulate Role ({userRole.replace(/_/g, ' ')})</span>
         </button>
       )}
     </div>

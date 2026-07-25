@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 export const MemberDashboard = () => {
-  const { currentUser, cycle, setActiveTab } = useApp();
+  const { currentUser, cycle, setActiveTab, certificates, showToast } = useApp();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -166,6 +166,43 @@ export const MemberDashboard = () => {
             <div key={a.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
               <h4 className="font-bold text-xs text-[#060721]">{a.title}</h4>
               <p className="text-xs text-slate-600 font-medium">{a.content}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Issued Certificates & Credentials (CV-Ready) */}
+      <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-xs space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-black text-sm text-[#060721] flex items-center gap-2">
+            <Award className="w-4 h-4 text-[#2FA137]" />
+            <span>My Issued CV-Ready Certificates & Credentials (PRD 3.9)</span>
+          </h3>
+          <span className="text-xs font-bold text-[#2FA137] bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">{certificates.length} Issued</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {certificates.map(c => (
+            <div key={c.id} className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-extrabold uppercase text-[#2FA137] bg-white px-2.5 py-0.5 rounded-full border border-emerald-200">{c.type}</span>
+                <span className="text-[10px] font-mono font-bold text-slate-500">{c.code}</span>
+              </div>
+              <h4 className="font-black text-[#060721] text-xs sm:text-sm">{c.title}</h4>
+              <p className="text-[11px] text-slate-600 font-medium">Issued to <strong className="text-[#060721]">{c.recipient}</strong> • {c.date}</p>
+              <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between text-[11px]">
+                <span className="font-bold text-[#2FA137]">Verification Status: Valid</span>
+                <button 
+                  onClick={() => showToast({ 
+                    title: 'Certificate Verified & Validated!', 
+                    message: `Credential Code: ${c.code} for ${c.recipient} ("${c.title}") is valid and verified by the NEX Academic Board.`, 
+                    type: 'success' 
+                  })}
+                  className="font-extrabold text-[#060721] hover:underline"
+                >
+                  Verify Credentials →
+                </button>
+              </div>
             </div>
           ))}
         </div>

@@ -63,12 +63,12 @@ export const Hero = () => {
             </div>
 
             {/* Social Proof */}
-            <div className="flex items-center gap-3 pt-2">
-              <div className="flex -space-x-2 shrink-0">
-                <img className="inline-block h-9 w-9 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Student" />
-                <img className="inline-block h-9 w-9 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt="Student" />
-                <img className="inline-block h-9 w-9 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" alt="Student" />
-                <img className="inline-block h-9 w-9 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80" alt="Student" />
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-2">
+              <div className="flex -space-x-4 shrink-0">
+                <img className="inline-block h-14 w-14 sm:h-16 sm:w-16 rounded-full ring-4 ring-white shadow-lg object-cover object-top border-2 border-emerald-100" src="/landing-head1.jpeg" alt="NEX Student Member 1" />
+                <img className="inline-block h-14 w-14 sm:h-16 sm:w-16 rounded-full ring-4 ring-white shadow-lg object-cover object-top border-2 border-emerald-100" src="/landing-head2.jpeg" alt="NEX Student Member 2" />
+                <img className="inline-block h-14 w-14 sm:h-16 sm:w-16 rounded-full ring-4 ring-white shadow-lg object-cover object-top border-2 border-emerald-100" src="/landing-head3.jpeg" alt="NEX Student Member 3" />
+                <img className="inline-block h-14 w-14 sm:h-16 sm:w-16 rounded-full ring-4 ring-white shadow-lg object-cover object-top border-2 border-emerald-100" src="/landing-head4.jpeg" alt="NEX Student Member 4" />
               </div>
               <p className="text-xs text-slate-600 font-medium leading-tight max-w-md">
                 Join <strong className="text-[#060721] font-bold">500+</strong> Lagos State University Engineering, Agriculture & Environmental Sciences students already building the future

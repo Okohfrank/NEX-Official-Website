@@ -13,70 +13,257 @@ import {
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  // Role simulation: 'public' | 'unplaced_member' | 'group_member_research' | 'group_member_selected' | 'exec_admin'
-  const [userRole, setUserRole] = useState('public');
-  const [currentUser, setCurrentUser] = useState(MOCK_USER_PROFILES.publicGuest);
-  const [activeTab, setActiveTab] = useState('home');
-  const [darkMode, setDarkMode] = useState(true);
+  // -------------------------------------------------------------
+  // Persistent State Initializers (Preserves exact page on reload)
+  // -------------------------------------------------------------
+  const [userRole, setUserRole] = useState(() => {
+    return localStorage.getItem('nex_userRole') || 'public';
+  });
+
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('nex_activeTab') || 'home';
+  });
+
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('nex_currentUser');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return MOCK_USER_PROFILES.publicGuest;
+  });
+
+  const [userUpvotedBounties, setUserUpvotedBounties] = useState(() => {
+    const saved = localStorage.getItem('nex_userUpvotedBounties');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return [];
+  });
 
   // Global state collections
   const [cycle, setCycle] = useState(CURRENT_CYCLE);
   const [researchWorkspace, setResearchWorkspace] = useState(MOCK_RESEARCH_WORKSPACE);
   const [buildWorkspace, setBuildWorkspace] = useState(MOCK_BUILD_WORKSPACE);
   const [leaderboard, setLeaderboard] = useState(MOCK_LEADERBOARD);
-  const [bounties, setBounties] = useState(MOCK_BOUNTIES);
-  const [events, setEvents] = useState(MOCK_EVENTS);
-  const [executives, setExecutives] = useState(EXECUTIVES_DATA);
+  
+  const [bounties, setBounties] = useState(() => {
+    const saved = localStorage.getItem('nex_bounties');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return MOCK_BOUNTIES;
+  });
 
-  // Notifications
+  const [events, setEvents] = useState(() => {
+    const saved = localStorage.getItem('nex_events');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return MOCK_EVENTS;
+  });
+
+  const [executives, setExecutives] = useState(() => {
+    const saved = localStorage.getItem('nex_executives');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return EXECUTIVES_DATA;
+  });
+
+  const [certificates, setCertificates] = useState(() => {
+    const saved = localStorage.getItem('nex_certificates');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return [
+      { id: 'cert-1', recipient: 'Oyewole Samod Atanda', title: '2026 First Cycle Orientation & Research Ethics Workshop', type: 'Workshop Certificate', date: 'Jul 2026', code: 'NEX-CERT-2026-001' },
+      { id: 'cert-2', recipient: 'George Ikechukwu', title: 'Interdisciplinary Problem Definition & Scope Matrix', type: 'Research Certificate', date: 'Jul 2026', code: 'NEX-CERT-2026-002' }
+    ];
+  });
+
+  const [topicChangeRequests, setTopicChangeRequests] = useState([
+    { id: 'tcr-1', groupName: 'Group Alpha - Clean Hydro Systems', currentTopic: 'Solar Water Kiosk with Bio-Sand Filtration', proposedTopic: 'Decentralized Micro-Filtration Kiosk for Campus Dorms', reason: 'Refined scope after campus water quality lab testing showed higher turbidity in hostel supply.', status: 'Pending Review' }
+  ]);
+
   const [notifications, setNotifications] = useState([
     { id: 1, text: "Group placement completed for 2026 First Cycle", time: "10m ago", read: false },
     { id: 2, text: "New Research Log entry by Nkechi Eze", time: "2h ago", read: false },
     { id: 3, text: "Proposal Review Gate is now OPEN", time: "1d ago", read: true }
   ]);
 
+  const [toasts, setToasts] = useState([]);
+
+  // -------------------------------------------------------------
+  // Synchronization Effects for LocalStorage Persistence
+  // -------------------------------------------------------------
+  useEffect(() => {
+    localStorage.setItem('nex_userRole', userRole);
+  }, [userRole]);
+
+  useEffect(() => {
+    localStorage.setItem('nex_activeTab', activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    localStorage.setItem('nex_currentUser', JSON.stringify(currentUser));
+  }, [currentUser]);
+
+  useEffect(() => {
+    localStorage.setItem('nex_userUpvotedBounties', JSON.stringify(userUpvotedBounties));
+  }, [userUpvotedBounties]);
+
+  useEffect(() => {
+    localStorage.setItem('nex_bounties', JSON.stringify(bounties));
+  }, [bounties]);
+
+  useEffect(() => {
+    localStorage.setItem('nex_events', JSON.stringify(events));
+  }, [events]);
+
+  useEffect(() => {
+    localStorage.setItem('nex_executives', JSON.stringify(executives));
+  }, [executives]);
+
+  useEffect(() => {
+    localStorage.setItem('nex_certificates', JSON.stringify(certificates));
+  }, [certificates]);
+
   // Ensure clean white & brand theme on <html> element
   useEffect(() => {
     document.documentElement.classList.remove('dark');
   }, []);
+
+  // Toast Action Helper
+  const showToast = ({ title, message, type = 'success', duration = 4000 }) => {
+    const id = Date.now();
+    const newToast = { id, title, message, type };
+    setToasts(prev => [...prev, newToast]);
+
+    if (duration > 0) {
+      setTimeout(() => {
+        setToasts(prev => prev.filter(t => t.id !== id));
+      }, duration);
+    }
+  };
+
+  const removeToast = (id) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  };
+
+  const markAllNotificationsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
+
+  const markNotificationRead = (id) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+  };
+
+  // Account-based persistent profiles store (Preserves photos across logouts and ready for backend sync)
+  const [userProfilesStore, setUserProfilesStore] = useState(() => {
+    const saved = localStorage.getItem('nex_userProfilesStore');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return {};
+  });
+
+  useEffect(() => {
+    localStorage.setItem('nex_userProfilesStore', JSON.stringify(userProfilesStore));
+  }, [userProfilesStore]);
+
+  // Update User Profile Action
+  const updateUserProfile = (updatedFields) => {
+    setCurrentUser(prev => {
+      const emailKey = (prev.email || 'default_user').toLowerCase();
+      const newProfile = { ...prev, ...updatedFields };
+
+      setUserProfilesStore(store => {
+        const updatedStore = { ...store, [emailKey]: newProfile };
+        localStorage.setItem('nex_userProfilesStore', JSON.stringify(updatedStore));
+        return updatedStore;
+      });
+
+      localStorage.setItem('nex_currentUser', JSON.stringify(newProfile));
+      return newProfile;
+    });
+
+    showToast({
+      title: 'Profile Saved Permanently!',
+      message: 'Your profile details and gallery photo are saved to your account and will persist across logouts.',
+      type: 'success'
+    });
+  };
 
   // Helper logout action
   const logout = () => {
     setUserRole('public');
     setCurrentUser(MOCK_USER_PROFILES.publicGuest);
     setActiveTab('home');
+    localStorage.removeItem('nex_userRole');
+    localStorage.removeItem('nex_activeTab');
+    localStorage.removeItem('nex_currentUser');
+  };
+
+  // Reset all local session data
+  const resetAllData = () => {
+    localStorage.clear();
+    setUserRole('public');
+    setCurrentUser(MOCK_USER_PROFILES.publicGuest);
+    setActiveTab('home');
+    setBounties(MOCK_BOUNTIES);
+    setEvents(MOCK_EVENTS);
+    setExecutives(EXECUTIVES_DATA);
+    setUserUpvotedBounties([]);
+    showToast({
+      title: 'Session Storage Reset',
+      message: 'All local session state has been reset to defaults.',
+      type: 'info'
+    });
   };
 
   // Update current user profile when role changes
   const changeRole = (newRole) => {
     setUserRole(newRole);
+    let targetProfile = MOCK_USER_PROFILES.publicGuest;
+
     switch (newRole) {
       case 'public':
-        setCurrentUser(MOCK_USER_PROFILES.publicGuest);
+        targetProfile = MOCK_USER_PROFILES.publicGuest;
         setActiveTab('home');
         break;
       case 'unplaced_member':
-        setCurrentUser(MOCK_USER_PROFILES.unplacedStudent);
+        targetProfile = MOCK_USER_PROFILES.unplacedStudent;
         setActiveTab('dashboard');
         break;
       case 'group_member_research':
-        setCurrentUser(MOCK_USER_PROFILES.researchMember);
+        targetProfile = MOCK_USER_PROFILES.researchMember;
         setActiveTab('research');
         break;
       case 'group_member_selected':
-        setCurrentUser(MOCK_USER_PROFILES.selectedMember);
+        targetProfile = MOCK_USER_PROFILES.selectedMember;
         setActiveTab('build');
         break;
       case 'exec_admin':
-        setCurrentUser(MOCK_USER_PROFILES.execAdmin);
+        targetProfile = MOCK_USER_PROFILES.execAdmin;
         setActiveTab('admin_overview');
         break;
       default:
         break;
     }
+
+    // Restore saved custom profile & gallery photo if available in userProfilesStore
+    if (targetProfile.email) {
+      const emailKey = targetProfile.email.toLowerCase();
+      if (userProfilesStore[emailKey]) {
+        targetProfile = { ...targetProfile, ...userProfilesStore[emailKey] };
+      }
+    }
+
+    setCurrentUser(targetProfile);
+    localStorage.setItem('nex_currentUser', JSON.stringify(targetProfile));
   };
 
-  // Helper actions
+  // User Actions
   const addResearchLog = (text, tag) => {
     const newLog = {
       id: Date.now(),
@@ -106,22 +293,145 @@ export const AppProvider = ({ children }) => {
   };
 
   const upvoteBounty = (id) => {
+    if (userUpvotedBounties.includes(id)) {
+      showToast({
+        title: 'Already Upvoted',
+        message: 'You have already cast your single vote for this problem bounty.',
+        type: 'warning'
+      });
+      return false;
+    }
+
+    setUserUpvotedBounties(prev => [...prev, id]);
     setBounties(prev => prev.map(b => b.id === id ? { ...b, votes: b.votes + 1 } : b));
+    showToast({
+      title: 'Upvote Recorded!',
+      message: 'Your vote has been added to this problem challenge.',
+      type: 'success'
+    });
+    return true;
   };
 
   const rsvpEvent = (id) => {
     setEvents(prev => prev.map(e => e.id === id ? { ...e, rsvps: e.rsvps + 1, userRsvped: true } : e));
+    showToast({
+      title: 'RSVP Confirmed!',
+      message: 'Your attendance reservation has been recorded for this workshop.',
+      type: 'success'
+    });
+  };
+
+  // Admin Controls
+  const addEvent = (eventData) => {
+    const newEvt = {
+      id: Date.now(),
+      title: eventData.title,
+      date: eventData.date || 'Upcoming 2026',
+      time: eventData.time || '10:00 AM',
+      location: eventData.location || 'Faculty Auditorium / Virtual',
+      speaker: eventData.speaker || 'NEX Exec Council',
+      category: eventData.category || 'Workshop',
+      rsvps: 0,
+      userRsvped: false
+    };
+    setEvents(prev => [newEvt, ...prev]);
+
+    setNotifications(prev => [
+      { id: Date.now(), text: `New Workshop Added: ${eventData.title}`, time: "Just now", read: false },
+      ...prev
+    ]);
+  };
+
+  const addBounty = (bountyData) => {
+    const newBounty = {
+      id: Date.now(),
+      title: bountyData.title,
+      domain: bountyData.domain || 'Engineering',
+      submittedBy: bountyData.submittedBy || 'Industry Partner / Admin',
+      description: bountyData.description,
+      votes: 1,
+      status: bountyData.status || 'Active Mission Candidate'
+    };
+    setBounties(prev => [newBounty, ...prev]);
+  };
+
+  const addExecutive = (execData) => {
+    const newExec = {
+      id: `exec-${Date.now()}`,
+      name: execData.name,
+      role: execData.role,
+      dept: execData.dept,
+      order: parseInt(execData.order) || executives.length + 1,
+      bio: execData.bio,
+      quote: execData.quote || '',
+      photo: execData.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+      instagram: execData.instagram || '',
+      linkedin: execData.linkedin || ''
+    };
+    setExecutives(prev => [...prev, newExec].sort((a, b) => a.order - b.order));
+  };
+
+  const awardMemberPoints = (studentName, pointsToAdd, newBadge) => {
+    setLeaderboard(prev => prev.map(m => {
+      if (m.name.toLowerCase() === studentName.toLowerCase() || m.id === studentName) {
+        const updatedPoints = m.points + (parseInt(pointsToAdd) || 0);
+        const updatedBadges = newBadge && !m.badges.includes(newBadge) ? [...m.badges, newBadge] : m.badges;
+        return { ...m, points: updatedPoints, badges: updatedBadges };
+      }
+      return m;
+    }));
+
+    setNotifications(prev => [
+      { id: Date.now(), text: `Recognized Student ${studentName} with +${pointsToAdd} Points${newBadge ? ` & '${newBadge}' Badge` : ''}!`, time: "Just now", read: false },
+      ...prev
+    ]);
+  };
+
+  const issueCertificate = (recipient, certTitle, certType) => {
+    const newCert = {
+      id: `cert-${Date.now()}`,
+      recipient,
+      title: certTitle,
+      type: certType || 'Project Certificate',
+      date: 'Jul 2026',
+      code: `NEX-CERT-2026-${Math.floor(100 + Math.random() * 900)}`
+    };
+    setCertificates(prev => [newCert, ...prev]);
+
+    setNotifications(prev => [
+      { id: Date.now(), text: `Issued CV Certificate to ${recipient}: ${certTitle}`, time: "Just now", read: false },
+      ...prev
+    ]);
+  };
+
+  const handleTopicChangeReview = (id, approved, feedback) => {
+    setTopicChangeRequests(prev => prev.map(t => {
+      if (t.id === id) {
+        return { ...t, status: approved ? 'Approved' : 'Rejected', feedback };
+      }
+      return t;
+    }));
+
+    if (approved) {
+      const targetReq = topicChangeRequests.find(t => t.id === id);
+      if (targetReq) {
+        setResearchWorkspace(prev => ({
+          ...prev,
+          topic: targetReq.proposedTopic
+        }));
+      }
+    }
   };
 
   const value = {
     userRole,
     changeRole,
     logout,
+    resetAllData,
     currentUser,
+    updateUserProfile,
     activeTab,
     setActiveTab,
-    darkMode,
-    setDarkMode,
     cycle,
     researchWorkspace,
     setResearchWorkspace,
@@ -129,14 +439,30 @@ export const AppProvider = ({ children }) => {
     setBuildWorkspace,
     leaderboard,
     bounties,
+    userUpvotedBounties,
     events,
     executives,
     setExecutives,
+    certificates,
+    topicChangeRequests,
     notifications,
+    markAllNotificationsRead,
+    markNotificationRead,
+    toasts,
+    showToast,
+    removeToast,
     addResearchLog,
     addBuildLog,
     upvoteBounty,
-    rsvpEvent
+    rsvpEvent,
+
+    // Admin Controls
+    addEvent,
+    addBounty,
+    addExecutive,
+    awardMemberPoints,
+    issueCertificate,
+    handleTopicChangeReview
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -5,6 +5,7 @@ import { Navbar } from './components/layout/Navbar';
 import { Sidebar } from './components/layout/Sidebar';
 import { MobileWorkspaceBar } from './components/layout/MobileWorkspaceBar';
 import { Footer } from './components/layout/Footer';
+import { ToastContainer } from './components/UI/ToastContainer';
 
 // Public Pages
 import { Hero } from './components/public/Hero';
@@ -23,6 +24,7 @@ import { ForgotPasswordView } from './components/auth/ForgotPasswordView';
 // Member Views
 import { MemberDashboard } from './components/member/MemberDashboard';
 import { MyGroupView } from './components/member/MyGroupView';
+import { MemberProfile } from './components/member/MemberProfile';
 import { ResearchWorkspace } from './components/member/ResearchWorkspace';
 import { ProposalForm } from './components/member/ProposalForm';
 import { BuildWorkspace } from './components/member/BuildWorkspace';
@@ -85,6 +87,8 @@ const AppContent = () => {
         return <MemberDashboard />;
       case 'mygroup':
         return <MyGroupView />;
+      case 'profile':
+        return <MemberProfile />;
       case 'research':
         return <ResearchWorkspace />;
       case 'proposal':
@@ -118,13 +122,13 @@ const AppContent = () => {
   };
 
   const isWorkspaceView = [
-    'dashboard', 'mygroup', 'research', 'proposal', 'build', 'publish',
+    'dashboard', 'mygroup', 'profile', 'research', 'proposal', 'build', 'publish',
     'leaderboard', 'bounties', 'events', 'directory',
     'admin_overview', 'admin_placement', 'admin_proposals', 'admin_content'
   ].includes(activeTab);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50/50 text-slate-900 selection:bg-emerald-600 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50/50 text-slate-900 selection:bg-emerald-600 selection:text-white pt-20">
       {/* Top Fixed Header */}
       <Navbar />
 
@@ -140,8 +144,8 @@ const AppContent = () => {
       {/* Public Footer (Hidden in Dashboard / Workspace Views) */}
       {!isWorkspaceView && <Footer />}
 
-      {/* Role Simulator floating pill */}
-      <RoleSwitcherBar />
+      {/* Custom Alert Toast Container */}
+      <ToastContainer />
     </div>
   );
 };
