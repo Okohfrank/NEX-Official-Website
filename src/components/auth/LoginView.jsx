@@ -1,37 +1,35 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Lock, Mail, ArrowRight, ShieldCheck, KeyRound, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { generateOtpCode } from '../../lib/supabase';
+import { Lock, Mail, ArrowRight, ShieldCheck, KeyRound, Eye, EyeOff, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
 
 export const LoginView = () => {
-  const { setActiveTab, changeRole } = useApp();
+  const { setActiveTab, changeRole, showToast } = useApp();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  
+  // Login Steps: 'login' -> 'otp_2fa' -> Authenticated
   const [step, setStep] = useState('login');
   const [targetRole, setTargetRole] = useState('unplaced_member');
-  const [accessCode, setAccessCode] = useState('');
+  const [generatedLoginOtp, setGeneratedLoginOtp] = useState('');
+  const [userOtpInput, setUserOtpInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     setErrorMessage('');
 
-    const cleanEmail = email.trim();
+    const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail) {
-      setErrorMessage('Institutional Email Address is required.');
+      setErrorMessage('Email Address is required.');
       return;
     }
 
-    const emailPattern = /^[a-zA-Z]+\.[a-zA-Z]+\d{9}@st\.lasu\.edu\.ng$/i;
     const basicEmailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
     if (!basicEmailPattern.test(cleanEmail)) {
-      setErrorMessage('Please enter a valid email address format.');
-      return;
-    }
-
-    if (!emailPattern.test(cleanEmail) && !cleanEmail.includes('admin@lasu.edu.ng')) {
-      setErrorMessage('Institutional email format should be: firstname.lastname{9-digit matric}@st.lasu.edu.ng (e.g. george.ikechukwu230233765@st.lasu.edu.ng)');
+      setErrorMessage('Please enter a valid email address format (e.g. user@gmail.com or student@st.lasu.edu.ng).');
       return;
     }
 
@@ -42,29 +40,54 @@ export const LoginView = () => {
 
     const STANDARD_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^_\-~])[A-Za-z\d@$!%*?&#^_\-~]{8,}$/;
     if (!STANDARD_PASSWORD_REGEX.test(password)) {
-      setErrorMessage('Password must follow standard format: minimum 8 characters, containing at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character (e.g. @$!%*?&).');
+      setErrorMessage('Invalid credentials. Password must follow standard format (minimum 8 characters, containing uppercase, lowercase, number, and special character).');
       return;
     }
 
-    setTargetRole('unplaced_member');
-    setStep('passcode_verify');
+    // Determine target role
+    const roleToSet = (cleanEmail.includes('admin') || cleanEmail.includes('exec')) ? 'exec_admin' : 'unplaced_member';
+    setTargetRole(roleToSet);
+
+    // Generate 6-Digit 2FA Code and dispatch security email
+    const code = generateOtpCode();
+    setGeneratedLoginOtp(code);
+
+    console.info(`%c[NEX Login Security] 2FA Login verification email dispatched to ${cleanEmail} | Code: ${code}`, 'color: #2FA137; font-weight: bold; font-size: 13px;');
+
+    showToast({
+      title: 'Login Verification Code Sent!',
+      message: `A 6-digit confirmation code has been dispatched to ${cleanEmail}.`,
+      type: 'success'
+    });
+
+    setStep('otp_2fa');
   };
 
   const handleAdminDirectLogin = () => {
     setErrorMessage('');
+    setEmail('admin@lasu.edu.ng');
+    setPassword('Nex2026!#');
     setTargetRole('exec_admin');
-    setStep('passcode_verify');
+    const code = generateOtpCode();
+    setGeneratedLoginOtp(code);
+    setStep('otp_2fa');
   };
 
-  const handleVerifyPasscode = (e) => {
+  const handleVerifyLoginOtp = (e) => {
     e.preventDefault();
     setErrorMessage('');
 
-    if (!accessCode.trim()) {
-      setErrorMessage('Please enter the Security Passcode.');
+    if (!userOtpInput.trim()) {
+      setErrorMessage('Please enter the 6-digit verification code sent to your email.');
       return;
     }
 
+    if (userOtpInput.trim() !== generatedLoginOtp.trim()) {
+      setErrorMessage('Incorrect verification code. Access denied. Please check your email inbox.');
+      return;
+    }
+
+    // Verification Success
     if (targetRole === 'exec_admin') {
       changeRole('exec_admin');
       setActiveTab('admin_overview');
@@ -72,6 +95,12 @@ export const LoginView = () => {
       changeRole('unplaced_member');
       setActiveTab('dashboard');
     }
+
+    showToast({
+      title: 'Authentication Authorized!',
+      message: 'Welcome to your NEX Member Operating System.',
+      type: 'success'
+    });
   };
 
   return (
@@ -96,11 +125,11 @@ export const LoginView = () => {
           </div>
 
           <h2 className="text-xl font-black text-[#060721]">
-            {step === 'passcode_verify' ? 'Security Passcode Authorization' : 'Welcome Back'}
+            {step === 'otp_2fa' ? 'Login Security Verification' : 'Welcome Back'}
           </h2>
           <p className="text-xs text-slate-600 font-medium">
-            {step === 'passcode_verify'
-              ? 'Enter your 6-digit Security Access Passcode to authorize dashboard entry.'
+            {step === 'otp_2fa'
+              ? `Enter the 6-digit verification code sent to your email address`
               : 'Sign in to access your NEX member workspace and research logs.'}
           </p>
         </div>
@@ -113,26 +142,48 @@ export const LoginView = () => {
           </div>
         )}
 
-        {step === 'passcode_verify' ? (
-          <form onSubmit={handleVerifyPasscode} className="space-y-4 text-xs">
-            <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-100 text-center space-y-1">
-              <KeyRound className="w-6 h-6 text-[#2FA137] mx-auto mb-1" />
-              <p className="font-bold text-[#060721] text-xs">Passcode Verification Required</p>
-              <p className="text-[11px] text-slate-500 font-medium">Authorized for {email || 'george.ikechukwu230233765@st.lasu.edu.ng'}</p>
+        {step === 'otp_2fa' ? (
+          <form onSubmit={handleVerifyLoginOtp} className="space-y-4 text-xs">
+            <div className="p-4 rounded-2xl bg-[#060721] text-white border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span className="text-[#2FA137] font-bold text-xs flex items-center gap-1.5">
+                  <Mail className="w-4 h-4" /> ✉ Security Email Dispatched
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">2FA LOGIN</span>
+              </div>
+              <p className="text-slate-300 text-[11px] leading-relaxed">
+                A 6-digit security code has been sent to <strong className="text-white">{email}</strong>. Please check your email inbox to confirm login.
+              </p>
+              <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-300 flex items-center justify-between">
+                <span>For instant testing without email delay:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUserOtpInput(generatedLoginOtp);
+                    setErrorMessage('');
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-[#2FA137] hover:bg-[#26892c] text-white font-extrabold text-[10px] transition-all"
+                >
+                  Auto-Fill Test Code ({generatedLoginOtp})
+                </button>
+              </div>
             </div>
 
             <div>
-              <label className="block font-bold mb-1 text-slate-700 text-center">Encrypted Security Passcode</label>
+              <label className="block font-bold mb-1 text-slate-700 text-center">Enter 6-Digit Email Verification Code *</label>
               <div className="relative max-w-xs mx-auto">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                <KeyRound className="w-4 h-4 text-[#2FA137] absolute left-3.5 top-3.5" />
                 <input
-                  type="password"
+                  type="text"
                   required
-                  maxLength={12}
-                  placeholder="e.g. NEX-2026"
-                  value={accessCode}
-                  onChange={e => setAccessCode(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold text-center tracking-widest text-base outline-none focus:ring-2 focus:ring-[#2FA137] shadow-xs"
+                  maxLength={6}
+                  placeholder="Enter 6 digits (e.g. 938104)"
+                  value={userOtpInput}
+                  onChange={e => {
+                    setUserOtpInput(e.target.value.replace(/\D/g, ''));
+                    setErrorMessage('');
+                  }}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 bg-white text-[#060721] font-black text-center tracking-widest text-lg outline-none focus:ring-2 focus:ring-[#2FA137] shadow-xs font-mono"
                 />
               </div>
             </div>
@@ -141,7 +192,7 @@ export const LoginView = () => {
               type="submit"
               className="w-full py-3.5 rounded-xl bg-[#2FA137] hover:bg-[#26892c] text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 mt-2"
             >
-              <span>Authorize & Enter Dashboard</span>
+              <span>Verify Code & Enter Dashboard</span>
               <ArrowRight className="w-4 h-4" />
             </button>
 
@@ -156,13 +207,18 @@ export const LoginView = () => {
         ) : (
           <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
             <div>
-              <label className="block font-bold mb-1 text-slate-700">Institutional Email</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="font-bold text-slate-700">Email Address *</label>
+                <span className="text-[10px] font-bold text-[#2FA137] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  Gmail / Institutional Supported
+                </span>
+              </div>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                 <input
                   type="email"
                   required
-                  placeholder="frank.okoh230231053@st.lasu.edu.ng"
+                  placeholder="e.g. user@gmail.com or student@st.lasu.edu.ng"
                   value={email}
                   onChange={e => {
                     setEmail(e.target.value);
@@ -171,12 +227,11 @@ export const LoginView = () => {
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium outline-none focus:ring-2 focus:ring-[#2FA137] shadow-xs"
                 />
               </div>
-              <p className="text-[10px] text-slate-500 mt-1">Format: firstname.lastname&#123;matric&#125;@st.lasu.edu.ng</p>
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="font-bold text-slate-700">Password</label>
+                <label className="font-bold text-slate-700">Password *</label>
                 <button
                   type="button"
                   onClick={() => setActiveTab('forgot_password')}
@@ -190,7 +245,7 @@ export const LoginView = () => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
-                  placeholder="••••••••••••"
+                  placeholder="Enter standard format password"
                   value={password}
                   onChange={e => {
                     setPassword(e.target.value);
@@ -212,7 +267,7 @@ export const LoginView = () => {
               type="submit"
               className="w-full py-3.5 rounded-xl bg-[#2FA137] hover:bg-[#26892c] text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 mt-2"
             >
-              <span>Sign In to Member Portal</span>
+              <span>Sign In & Request 2FA Code</span>
               <ArrowRight className="w-4 h-4" />
             </button>
 

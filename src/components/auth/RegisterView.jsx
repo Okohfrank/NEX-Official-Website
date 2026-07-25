@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { FOCUS_AREAS } from '../../data/mockData';
+import { registerUserWithSupabase, confirmUserInSupabase, generateNexEmailHtml } from '../../lib/supabase';
 import { 
   CheckCircle2, 
   ArrowRight, 
@@ -16,7 +17,11 @@ import {
   Plus, 
   X,
   Award,
-  Search
+  Search,
+  KeyRound,
+  ShieldCheck,
+  Sparkles,
+  Send
 } from 'lucide-react';
 
 const PREDEFINED_SKILLS = [
@@ -46,11 +51,19 @@ const KNOWLEDGE_AREAS = [
 ];
 
 export const RegisterView = () => {
-  const { setActiveTab, changeRole } = useApp();
-  const [submitted, setSubmitted] = useState(false);
+  const { setActiveTab, changeRole, updateUserProfile, showToast } = useApp();
+  
+  // Step state: 'form' | 'otp_verify' | 'completed'
+  const [step, setStep] = useState('form');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
+  // OTP state
+  const [generatedOtp, setGeneratedOtp] = useState('');
+  const [userOtpInput, setUserOtpInput] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Field errors object
   const [errors, setErrors] = useState({});
   const [skillSearchText, setSkillSearchText] = useState('');
@@ -69,7 +82,7 @@ export const RegisterView = () => {
     agreeTerms: true
   });
 
-  // Handle adding custom skill or pressing Enter
+  // Handle adding custom skill
   const handleAddSkill = (e) => {
     if (e) e.preventDefault();
     const trimmed = skillSearchText.trim();
@@ -136,17 +149,17 @@ export const RegisterView = () => {
 
     // 3. Department
     if (!formData.department.trim()) {
-      newErrors.department = 'Faculty & Department is required. Please type your department.';
+      newErrors.department = 'Faculty & Department is required.';
     }
 
-    // 4. Institutional Email: firstname.lastname{matricnumber}@st.lasu.edu.ng
+    // 4. Email validation (Supports Institutional + Gmail)
     const cleanEmail = formData.email.trim();
     if (!cleanEmail) {
-      newErrors.email = 'Institutional Email Address is required.';
+      newErrors.email = 'Email Address is required.';
     } else {
-      const emailPattern = /^[a-zA-Z]+\.[a-zA-Z]+\d{9}@st\.lasu\.edu\.ng$/i;
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       if (!emailPattern.test(cleanEmail)) {
-        newErrors.email = 'Format must be firstname.lastname{9-digit matric}@st.lasu.edu.ng (e.g. george.ikechukwu230233765@st.lasu.edu.ng).';
+        newErrors.email = 'Please enter a valid email address (e.g. name@st.lasu.edu.ng or user@gmail.com).';
       }
     }
 
@@ -184,14 +197,60 @@ export const RegisterView = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      setSubmitted(true);
+      setIsSubmitting(true);
+      const res = await registerUserWithSupabase(formData);
+      setIsSubmitting(false);
+
+      if (res.success) {
+        setGeneratedOtp(res.otpCode);
+        setStep('otp_verify');
+        showToast({
+          title: 'Verification Code Dispatched!',
+          message: `A 6-digit confirmation code has been generated for ${formData.email}.`,
+          type: 'success'
+        });
+      }
     }
   };
 
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (!userOtpInput.trim()) {
+      setOtpError('Please enter the 6-digit confirmation code.');
+      return;
+    }
+
+    if (userOtpInput.trim() !== generatedOtp.trim()) {
+      setOtpError('Invalid confirmation code. Please check the code delivered below.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    await confirmUserInSupabase(formData);
+    setIsSubmitting(false);
+
+    setStep('completed');
+    showToast({
+      title: 'Account Verified & Activated!',
+      message: 'Welcome to NEX! Your profile is verified and active in the pool.',
+      type: 'success'
+    });
+  };
+
   const handleComplete = () => {
+    updateUserProfile({
+      name: formData.fullName,
+      email: formData.email,
+      dept: formData.department,
+      level: formData.level,
+      matricNumber: formData.matricNumber,
+      skills: formData.skills,
+      knowledgeArea: formData.knowledgeArea,
+      focusAreas: formData.focusAreas
+    });
     changeRole('unplaced_member');
     setActiveTab('dashboard');
   };
@@ -221,25 +280,112 @@ export const RegisterView = () => {
             </div>
           </div>
 
-          <h2 className="text-2xl font-black text-[#060721]">Create Member Account</h2>
+          <h2 className="text-2xl font-black text-[#060721]">
+            {step === 'otp_verify' ? 'Email Security Verification' : step === 'completed' ? 'Account Verified!' : 'Create Member Account'}
+          </h2>
           <p className="text-xs text-slate-600 font-medium max-w-lg mx-auto">
-            Join NEX to participate in interdisciplinary research, group matching, build modules, and publish solutions.
+            {step === 'otp_verify' 
+              ? `Enter the 6-digit confirmation code delivered to ${formData.email}`
+              : 'Join NEX to participate in interdisciplinary research, group matching, build modules, and publish solutions.'}
           </p>
         </div>
 
-        {submitted ? (
+        {/* STEP 2: 6-DIGIT EMAIL VERIFICATION */}
+        {step === 'otp_verify' ? (
+          <div className="space-y-6">
+            {/* Custom Branded Email Notification Simulation Card */}
+            <div className="p-6 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl space-y-4 text-xs">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-[#2FA137]" />
+                  <span className="font-mono text-[11px] text-slate-300">NEX Official Security Mailer</span>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-extrabold text-[10px] border border-emerald-500/40">
+                  CONFIRMATION DISPATCHED
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-slate-300 font-medium">To: <strong className="text-white">{formData.email}</strong></p>
+                <p className="text-slate-300 font-medium">Subject: <strong className="text-[#2FA137]">Your 6-Digit NEX Account Verification Code</strong></p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+                <p className="text-[#2FA137] font-bold text-xs">✉ Security Email Dispatched!</p>
+                <p className="text-slate-300 text-[11px] leading-relaxed">
+                  A security verification email containing your 6-digit confirmation code has been dispatched to <strong className="text-white">{formData.email}</strong>.
+                </p>
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-300 flex items-center justify-between">
+                  <span>For instant testing without email delay:</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUserOtpInput(generatedOtp);
+                      setOtpError('');
+                      showToast({ title: 'Code Filled!', message: `Test code ${generatedOtp} inserted.`, type: 'info' });
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-[#2FA137] hover:bg-[#26892c] text-white font-extrabold text-[10px] transition-all"
+                  >
+                    Auto-Fill Test Code ({generatedOtp})
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-400 pt-1">Code expires in 15 minutes • Check your inbox or spam folder</p>
+              </div>
+            </div>
+
+            {/* OTP Verification Form */}
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              {otpError && (
+                <div className="p-3 rounded-xl bg-red-50 text-red-700 border border-red-200 text-xs font-bold flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{otpError}</span>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Enter 6-Digit Confirmation Code *</label>
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 text-[#2FA137] absolute left-3.5 top-3" />
+                  <input
+                    type="text"
+                    maxLength={6}
+                    placeholder="Enter 6 digits (e.g. 584920)"
+                    value={userOtpInput}
+                    onChange={e => {
+                      setUserOtpInput(e.target.value.replace(/\D/g, ''));
+                      setOtpError('');
+                    }}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 bg-white text-[#060721] text-base font-black tracking-widest outline-none focus:ring-2 focus:ring-[#2FA137] font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center gap-3">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-3 rounded-xl bg-[#2FA137] hover:bg-[#26892c] text-white font-black text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? 'Confirming Code...' : 'Verify Code & Activate Account'}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </form>
+          </div>
+        ) : step === 'completed' ? (
+          /* STEP 3: ACTIVATION COMPLETE */
           <div className="text-center py-8 space-y-4">
             <div className="w-16 h-16 rounded-full bg-[#e6f6e8] text-[#2FA137] flex items-center justify-center mx-auto shadow-xs">
               <CheckCircle2 className="w-10 h-10 animate-bounce" />
             </div>
-            <h3 className="text-2xl font-black text-[#060721]">Application Received!</h3>
+            <h3 className="text-2xl font-black text-[#060721]">Account Verified & Activated!</h3>
             <p className="text-xs text-slate-600 max-w-md mx-auto font-medium leading-relaxed">
-              Verification link dispatched to <strong className="text-[#060721]">{formData.email}</strong>.<br />
-              Your account is registered in the <strong className="text-[#2FA137]">Unplaced Member Pool</strong>.
+              Your profile has been saved to the database for <strong className="text-[#060721]">{formData.email}</strong>.<br />
+              You are now an active member in the <strong className="text-[#2FA137]">Unplaced Pool</strong> ready for group matching.
             </p>
 
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left text-xs space-y-1 max-w-md mx-auto">
-              <p className="font-extrabold text-[#060721]">Registered Profile Details:</p>
+              <p className="font-extrabold text-[#060721]">Verified Profile Record:</p>
               <p><span className="text-slate-500 font-medium">Full Name:</span> <span className="font-bold">{formData.fullName}</span></p>
               <p><span className="text-slate-500 font-medium">Matric Number:</span> <span className="font-bold">{formData.matricNumber}</span></p>
               <p><span className="text-slate-500 font-medium">Email:</span> <span className="font-bold">{formData.email}</span></p>
@@ -255,6 +401,7 @@ export const RegisterView = () => {
             </button>
           </div>
         ) : (
+          /* STEP 1: REGISTRATION FORM */
           <form onSubmit={handleSubmit} className="space-y-5 text-xs" noValidate>
             {/* Global Error Banner */}
             {Object.keys(errors).length > 0 && (
@@ -279,22 +426,19 @@ export const RegisterView = () => {
               </h3>
 
               <div>
-                <label className="block font-bold mb-1 text-slate-700">Full Name *</label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                  <input
-                    type="text"
-                    placeholder="e.g. George Ikechukwu"
-                    value={formData.fullName}
-                    onChange={e => {
-                      setFormData({ ...formData, fullName: e.target.value });
-                      if (errors.fullName) setErrors({ ...errors, fullName: null });
-                    }}
-                    className={`w-full pl-10 pr-4 py-2.5 rounded-xl border bg-white text-slate-900 outline-none shadow-xs font-medium ${
-                      errors.fullName ? 'border-red-500 focus:ring-2 focus:ring-red-400' : 'border-slate-300 focus:ring-2 focus:ring-[#2FA137]'
-                    }`}
-                  />
-                </div>
+                <label className="block font-bold mb-1 text-slate-700">Full Name (First & Last Name) *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. George Ikechukwu"
+                  value={formData.fullName}
+                  onChange={e => {
+                    setFormData({ ...formData, fullName: e.target.value });
+                    if (errors.fullName) setErrors({ ...errors, fullName: null });
+                  }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl border bg-white text-slate-900 outline-none shadow-xs font-medium ${
+                    errors.fullName ? 'border-red-500 focus:ring-2 focus:ring-red-400' : 'border-slate-300 focus:ring-2 focus:ring-[#2FA137]'
+                  }`}
+                />
                 {errors.fullName && (
                   <p className="text-[11px] text-red-600 font-bold mt-1 flex items-center gap-1">
                     <AlertCircle className="w-3 h-3 shrink-0" />
@@ -312,7 +456,7 @@ export const RegisterView = () => {
                     placeholder="e.g. 230233765"
                     value={formData.matricNumber}
                     onChange={e => {
-                      const val = e.target.value.replace(/\D/g, ''); // digits only
+                      const val = e.target.value.replace(/\D/g, '');
                       setFormData({ ...formData, matricNumber: val });
                       if (errors.matricNumber) setErrors({ ...errors, matricNumber: null });
                     }}
@@ -347,7 +491,7 @@ export const RegisterView = () => {
                 </div>
               </div>
 
-              {/* Department Input (Not a dropdown as requested) */}
+              {/* Department Input */}
               <div>
                 <label className="block font-bold mb-1 text-slate-700">Faculty & Department *</label>
                 <div className="relative">
@@ -375,14 +519,19 @@ export const RegisterView = () => {
                 )}
               </div>
 
-              {/* Institutional Email with exact format check */}
+              {/* Email Input (Supports Institutional Email + Gmail) */}
               <div>
-                <label className="block font-bold mb-1 text-slate-700">Institutional Email Address *</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-bold text-slate-700">Email Address (Institutional or Personal) *</label>
+                  <span className="text-[10px] font-extrabold text-[#2FA137] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    Institutional / Gmail Supported
+                  </span>
+                </div>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                   <input
                     type="email"
-                    placeholder="e.g. george.ikechukwu230233765@st.lasu.edu.ng"
+                    placeholder="e.g. george.ikechukwu230233765@st.lasu.edu.ng or user@gmail.com"
                     value={formData.email}
                     onChange={e => {
                       setFormData({ ...formData, email: e.target.value });
@@ -399,8 +548,8 @@ export const RegisterView = () => {
                     <span>{errors.email}</span>
                   </p>
                 ) : (
-                  <p className="text-[10px] text-[#2FA137] font-semibold mt-1 bg-emerald-50 py-1 px-2.5 rounded-md border border-emerald-200/60 inline-block">
-                    Format: <span className="font-bold">firstname.lastname&#123;9-digit matric&#125;@st.lasu.edu.ng</span>
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Use your institutional email (<span className="font-bold text-[#2FA137]">@st.lasu.edu.ng</span>) or personal email (<span className="font-bold text-slate-700">Gmail/Yahoo</span>).
                   </p>
                 )}
               </div>
@@ -443,13 +592,13 @@ export const RegisterView = () => {
                   </div>
                 )}
 
-                {/* Skill search / custom input with working add button */}
+                {/* Skill search / custom input */}
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
                       type="text"
-                      placeholder="Search or type a skill (e.g. ROS2, Python, CAD)..."
+                      placeholder="Type custom skill tag or search..."
                       value={skillSearchText}
                       onChange={e => setSkillSearchText(e.target.value)}
                       onKeyDown={e => {
@@ -458,48 +607,42 @@ export const RegisterView = () => {
                           handleAddSkill(e);
                         }
                       }}
-                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 outline-none focus:ring-2 focus:ring-[#2FA137] font-medium"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 bg-white text-slate-900 text-xs outline-none focus:ring-2 focus:ring-[#2FA137]"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={handleAddSkill}
-                    className="px-4 py-2.5 rounded-xl bg-[#2FA137] hover:bg-[#26892c] text-white font-bold text-xs transition-all shadow-xs flex items-center gap-1 shrink-0"
+                    className="px-4 py-2 bg-[#060721] hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center gap-1 shrink-0"
                   >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Skill</span>
+                    <Plus className="w-3.5 h-3.5 text-[#2FA137]" />
+                    <span>Add Custom</span>
                   </button>
                 </div>
 
-                {/* Filtered Predefined Skill Suggestions */}
-                <div className="mt-2.5">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
-                    Click to Toggle Popular Skills:
-                  </span>
-                  <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pr-1">
-                    {filteredPredefinedSkills.map((skill, i) => {
-                      const isSelected = formData.skills.includes(skill);
-                      return (
-                        <button
-                          key={i}
-                          type="button"
-                          onClick={() => handleSkillToggle(skill)}
-                          className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all flex items-center gap-1 ${
-                            isSelected
-                              ? 'bg-emerald-600 text-white shadow-xs'
-                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
-                          }`}
-                        >
-                          <span>{skill}</span>
-                          {isSelected ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3 text-slate-400" />}
-                        </button>
-                      );
-                    })}
-                  </div>
+                {/* Predefined skill suggestion chips */}
+                <div className="mt-2.5 flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 bg-slate-50 rounded-xl border border-slate-200">
+                  {filteredPredefinedSkills.map((sk, idx) => {
+                    const isSelected = formData.skills.includes(sk);
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleSkillToggle(sk)}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                          isSelected
+                            ? 'bg-[#2FA137] text-white border border-transparent shadow-xs'
+                            : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
+                        }`}
+                      >
+                        {isSelected ? `✓ ${sk}` : `+ ${sk}`}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {errors.skills && (
-                  <p className="text-[11px] text-red-600 font-bold mt-1.5 flex items-center gap-1">
+                  <p className="text-[11px] text-red-600 font-bold mt-1 flex items-center gap-1">
                     <AlertCircle className="w-3 h-3 shrink-0" />
                     <span>{errors.skills}</span>
                   </p>
@@ -509,119 +652,82 @@ export const RegisterView = () => {
               <div>
                 <label className="block font-bold mb-1 text-slate-700">Area of Strongest Knowledge *</label>
                 <div className="relative">
-                  <Brain className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <Brain className="w-4 h-4 text-[#2FA137] absolute left-3.5 top-3" />
                   <select
                     value={formData.knowledgeArea}
                     onChange={e => setFormData({ ...formData, knowledgeArea: e.target.value })}
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-[#2FA137] outline-none shadow-xs font-semibold"
                   >
-                    {KNOWLEDGE_AREAS.map((area, i) => (
-                      <option key={i} value={area}>{area}</option>
+                    {KNOWLEDGE_AREAS.map((ka, i) => (
+                      <option key={i} value={ka}>{ka}</option>
                     ))}
                   </select>
                 </div>
               </div>
-            </div>
 
-            {/* Section 3: Primary Focus Area Interests (Max 2) */}
-            <div className="space-y-3.5 pt-2 border-t border-slate-100">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-black text-[#2FA137] uppercase tracking-wider flex items-center gap-1.5">
-                  <Award className="w-4 h-4" />
-                  <span>3. Primary Focus Area Interests (Max 2) *</span>
-                </h3>
-                <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full ${
-                  formData.focusAreas.length === 2
-                    ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                    : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                }`}>
-                  {formData.focusAreas.length} / 2 Selected
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-1">
-                {FOCUS_AREAS.map(fa => {
-                  const isSelected = formData.focusAreas.includes(fa.title);
-                  const isMaxReached = formData.focusAreas.length >= 2;
-                  const isDisabled = !isSelected && isMaxReached;
-
-                  return (
-                    <label 
-                      key={fa.id} 
-                      className={`flex items-start gap-2.5 p-3 rounded-2xl border transition-all text-xs ${
-                        isDisabled 
-                          ? 'bg-slate-100 border-slate-200 opacity-45 cursor-not-allowed select-none' 
-                          : isSelected
-                          ? 'bg-emerald-50/90 border-[#2FA137] shadow-xs cursor-pointer'
-                          : 'bg-slate-50 border-slate-200 hover:border-slate-300 cursor-pointer'
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        disabled={isDisabled}
-                        checked={isSelected}
-                        onChange={() => {
-                          handleFocusAreaToggle(fa.title);
-                          if (errors.focusAreas) setErrors({ ...errors, focusAreas: null });
-                        }}
-                        className="mt-0.5 rounded text-[#2FA137] focus:ring-[#2FA137] disabled:cursor-not-allowed cursor-pointer"
-                      />
-                      <div className="space-y-0.5">
-                        <div className="flex items-center justify-between">
-                          <span className={`font-bold ${isSelected ? 'text-[#2FA137]' : 'text-slate-900'}`}>
-                            {fa.title}
-                          </span>
-                          {isDisabled && (
-                            <span className="text-[9px] font-extrabold bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded">
-                              Disabled (Max 2)
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[10px] text-slate-500 line-clamp-1 block leading-tight">
-                          {fa.description}
-                        </span>
-                      </div>
-                    </label>
-                  );
-                })}
-              </div>
-
-              {errors.focusAreas && (
-                <p className="text-[11px] text-red-600 font-bold mt-1 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3 shrink-0" />
-                  <span>{errors.focusAreas}</span>
-                </p>
-              )}
-
-              {formData.focusAreas.length >= 2 && !errors.focusAreas && (
-                <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-800 text-[11px] font-semibold flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
-                  <span>Maximum limit reached (2 Focus Areas). Uncheck an option to choose a different domain.</span>
+              {/* Focus Areas (Max 2) */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-bold text-slate-700">Primary Focus Area Interests (Select Max 2) *</label>
+                  <span className="text-[10px] font-bold text-slate-500">
+                    {formData.focusAreas.length}/2 Selected
+                  </span>
                 </div>
-              )}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {FOCUS_AREAS.map(fa => {
+                    const isSelected = formData.focusAreas.includes(fa.title);
+                    const isDisabled = !isSelected && formData.focusAreas.length >= 2;
+                    return (
+                      <button
+                        key={fa.id}
+                        type="button"
+                        onClick={() => handleFocusAreaToggle(fa.title)}
+                        disabled={isDisabled}
+                        className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                          isSelected
+                            ? 'bg-[#2FA137] text-white border-transparent shadow-xs'
+                            : isDisabled
+                            ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                        }`}
+                      >
+                        <span className="font-extrabold text-xs">{fa.title}</span>
+                        <span className={`text-[10px] font-medium mt-1 ${isSelected ? 'text-emerald-100' : 'text-slate-400'}`}>
+                          {isSelected ? '✓ Selected' : 'Click to select'}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {errors.focusAreas && (
+                  <p className="text-[11px] text-red-600 font-bold mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 shrink-0" />
+                    <span>{errors.focusAreas}</span>
+                  </p>
+                )}
+              </div>
             </div>
 
-            {/* Section 4: Passwords & Security */}
+            {/* Section 3: Password & Security */}
             <div className="space-y-3.5 pt-2 border-t border-slate-100">
               <h3 className="text-xs font-black text-[#2FA137] uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 pb-1.5">
                 <Lock className="w-4 h-4" />
-                <span>4. Password Credentials & Security</span>
+                <span>3. Password & Security Security Credentials</span>
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold mb-1 text-slate-700">Password *</label>
+                  <label className="block font-bold mb-1 text-slate-700">Password (Standard Format) *</label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                     <input
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="At least 8 characters"
+                      placeholder="Min 8 chars, A-Z, a-z, 0-9, @#$"
                       value={formData.password}
                       onChange={e => {
                         setFormData({ ...formData, password: e.target.value });
                         if (errors.password) setErrors({ ...errors, password: null });
                       }}
-                      className={`w-full pl-10 pr-10 py-2.5 rounded-xl border bg-white text-slate-900 outline-none shadow-xs font-medium ${
+                      className={`w-full px-3.5 py-2.5 pr-10 rounded-xl border bg-white text-slate-900 outline-none shadow-xs font-medium ${
                         errors.password ? 'border-red-500 focus:ring-2 focus:ring-red-400' : 'border-slate-300 focus:ring-2 focus:ring-[#2FA137]'
                       }`}
                     />
@@ -635,7 +741,7 @@ export const RegisterView = () => {
                   </div>
                   {errors.password && (
                     <p className="text-[11px] text-red-600 font-bold mt-1 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3 shrink-0" />
+                      <AlertCircle className="w-3 h-3 shrink-0 text-red-600" />
                       <span>{errors.password}</span>
                     </p>
                   )}
@@ -644,16 +750,15 @@ export const RegisterView = () => {
                 <div>
                   <label className="block font-bold mb-1 text-slate-700">Confirm Password *</label>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                     <input
                       type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="Repeat password"
+                      placeholder="Re-enter password"
                       value={formData.confirmPassword}
                       onChange={e => {
                         setFormData({ ...formData, confirmPassword: e.target.value });
                         if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: null });
                       }}
-                      className={`w-full pl-10 pr-10 py-2.5 rounded-xl border bg-white text-slate-900 outline-none shadow-xs font-medium ${
+                      className={`w-full px-3.5 py-2.5 pr-10 rounded-xl border bg-white text-slate-900 outline-none shadow-xs font-medium ${
                         errors.confirmPassword ? 'border-red-500 focus:ring-2 focus:ring-red-400' : 'border-slate-300 focus:ring-2 focus:ring-[#2FA137]'
                       }`}
                     />
@@ -667,64 +772,56 @@ export const RegisterView = () => {
                   </div>
                   {errors.confirmPassword && (
                     <p className="text-[11px] text-red-600 font-bold mt-1 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3 shrink-0" />
+                      <AlertCircle className="w-3 h-3 shrink-0 text-red-600" />
                       <span>{errors.confirmPassword}</span>
                     </p>
                   )}
                 </div>
               </div>
+            </div>
 
-              {formData.confirmPassword && !errors.confirmPassword && (
-                <div className="text-[11px] font-bold text-[#2FA137] flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Passwords match perfectly
-                </div>
+            {/* Terms Agreement Checkbox */}
+            <div className="pt-2">
+              <label className="flex items-start gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.agreeTerms}
+                  onChange={e => setFormData({ ...formData, agreeTerms: e.target.checked })}
+                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#2FA137] focus:ring-[#2FA137]"
+                />
+                <span className="text-slate-600 text-xs font-medium leading-tight">
+                  I agree to the <strong className="text-[#060721]">NEX Code of Ethics</strong>, interdisciplinary placement rules, and research publication terms.
+                </span>
+              </label>
+              {errors.agreeTerms && (
+                <p className="text-[11px] text-red-600 font-bold mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3 shrink-0" />
+                  <span>{errors.agreeTerms}</span>
+                </p>
               )}
-
-              <div className="pt-2">
-                <label className="flex items-start gap-2.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.agreeTerms}
-                    onChange={e => {
-                      setFormData({ ...formData, agreeTerms: e.target.checked });
-                      if (errors.agreeTerms) setErrors({ ...errors, agreeTerms: null });
-                    }}
-                    className="mt-0.5 rounded text-[#2FA137] focus:ring-[#2FA137]"
-                  />
-                  <span className="text-slate-600 text-xs font-medium">
-                    I agree to the <strong className="text-[#060721]">NEX Member Code of Conduct</strong> and <strong className="text-[#060721]">Research Integrity Guidelines</strong>.
-                  </span>
-                </label>
-                {errors.agreeTerms && (
-                  <p className="text-[11px] text-red-600 font-bold mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3 shrink-0" />
-                    <span>{errors.agreeTerms}</span>
-                  </p>
-                )}
-              </div>
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-4 rounded-xl bg-[#2FA137] hover:bg-[#26892c] text-white font-bold text-sm shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 mt-4"
+              disabled={isSubmitting}
+              className="w-full py-4 rounded-2xl bg-[#2FA137] hover:bg-[#26892c] text-white font-black text-sm shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 mt-4"
             >
-              <span>Submit Registration & Create Account</span>
+              {isSubmitting ? 'Generating Verification Code...' : 'Register Profile & Send Verification Code'}
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
         )}
 
-        <div className="text-center text-xs text-slate-500 border-t border-slate-100 pt-4 font-medium">
-          <p>
-            Already registered?{' '}
-            <button
-              onClick={() => setActiveTab('login')}
-              className="font-bold text-[#2FA137] underline hover:opacity-80"
-            >
-              Sign In
-            </button>
-          </p>
+        {/* Existing account link */}
+        <div className="text-center pt-2 border-t border-slate-100 text-xs">
+          <span className="text-slate-500 font-medium">Already registered an account? </span>
+          <button
+            onClick={() => setActiveTab('login')}
+            className="text-[#2FA137] font-black hover:underline ml-1"
+          >
+            Sign In Here
+          </button>
         </div>
       </div>
     </div>

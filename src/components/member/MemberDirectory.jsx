@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { GlassCard } from '../UI/GlassCard';
 import { Badge } from '../UI/Badge';
 import { Search, Filter, Mail, Users } from 'lucide-react';
+import { fetchSupabaseProfiles } from '../../lib/supabase';
 
 export const MemberDirectory = () => {
   const { showToast } = useApp();
   const [search, setSearch] = useState('');
+  const [dbMembers, setDbMembers] = useState([]);
 
-  const members = [
+  const defaultMembers = [
     { name: "Nkechi Eze", dept: "Environmental Sciences", skills: ["GIS Mapping", "CAD Design", "Environmental Impact"], focus: "Water" },
     { name: "Tunde Lawal", dept: "Mechanical Engineering", skills: ["CAD 3D", "Thermodynamics", "Prototyping"], focus: "Energy" },
     { name: "Sam Charles", dept: "Computer Engineering", skills: ["Embedded Systems", "React", "Python", "IoT"], focus: "Digital Innovation" },
@@ -16,10 +18,31 @@ export const MemberDirectory = () => {
     { name: "Segun Arinze", dept: "Chemical Engineering", skills: ["Polymer Synthesis", "Fluid Dynamics", "Lab Analysis"], focus: "Waste" }
   ];
 
+  useEffect(() => {
+    const getProfiles = async () => {
+      const live = await fetchSupabaseProfiles();
+      if (live && live.length > 0) {
+        const formatted = live.map(p => ({
+          name: p.name || 'Member',
+          dept: p.faculty_dept || p.dept || 'Faculty of Engineering',
+          skills: Array.isArray(p.skills) ? p.skills : (p.skills ? p.skills.split(',') : ['Engineering']),
+          focus: Array.isArray(p.focus_areas) ? p.focus_areas[0] : (p.focus_areas || 'Innovation')
+        }));
+        setDbMembers(formatted);
+      } else {
+        setDbMembers(defaultMembers);
+      }
+    };
+    getProfiles();
+  }, []);
+
+  const members = dbMembers.length > 0 ? dbMembers : defaultMembers;
+
   const filtered = members.filter(m => {
-    return m.name.toLowerCase().includes(search.toLowerCase()) ||
-           m.skills.some(s => s.toLowerCase().includes(search.toLowerCase())) ||
-           m.dept.toLowerCase().includes(search.toLowerCase());
+    const sList = Array.isArray(m.skills) ? m.skills : [];
+    return (m.name || '').toLowerCase().includes(search.toLowerCase()) ||
+           sList.some(s => (s || '').toLowerCase().includes(search.toLowerCase())) ||
+           (m.dept || '').toLowerCase().includes(search.toLowerCase());
   });
 
   return (

@@ -9,6 +9,14 @@ import {
   MOCK_EVENTS,
   EXECUTIVES_DATA
 } from '../data/mockData';
+import {
+  fetchSupabaseBounties,
+  insertBountyToSupabase,
+  fetchSupabaseEvents,
+  insertEventToSupabase,
+  fetchSupabaseCertificates,
+  insertCertificateToSupabase
+} from '../lib/supabase';
 
 const AppContext = createContext();
 
@@ -321,7 +329,7 @@ export const AppProvider = ({ children }) => {
     });
   };
 
-  // Admin Controls
+  // Admin Controls with Supabase DB Sync
   const addEvent = (eventData) => {
     const newEvt = {
       id: Date.now(),
@@ -335,6 +343,7 @@ export const AppProvider = ({ children }) => {
       userRsvped: false
     };
     setEvents(prev => [newEvt, ...prev]);
+    insertEventToSupabase(newEvt);
 
     setNotifications(prev => [
       { id: Date.now(), text: `New Workshop Added: ${eventData.title}`, time: "Just now", read: false },
@@ -353,6 +362,7 @@ export const AppProvider = ({ children }) => {
       status: bountyData.status || 'Active Mission Candidate'
     };
     setBounties(prev => [newBounty, ...prev]);
+    insertBountyToSupabase(newBounty);
   };
 
   const addExecutive = (execData) => {
@@ -372,19 +382,48 @@ export const AppProvider = ({ children }) => {
   };
 
   const awardMemberPoints = (studentName, pointsToAdd, newBadge) => {
-    setLeaderboard(prev => prev.map(m => {
-      if (m.name.toLowerCase() === studentName.toLowerCase() || m.id === studentName) {
-        const updatedPoints = m.points + (parseInt(pointsToAdd) || 0);
-        const updatedBadges = newBadge && !m.badges.includes(newBadge) ? [...m.badges, newBadge] : m.badges;
-        return { ...m, points: updatedPoints, badges: updatedBadges };
-      }
-      return m;
-    }));
+    if (!studentName) return;
+
+    setLeaderboard(prev => {
+      const updatedList = (prev || []).map(m => {
+        const isMatch = m.name && (m.name.toLowerCase() === studentName.toLowerCase() || m.id === studentName);
+        if (isMatch) {
+          const currentPoints = parseInt(m.points) || 0;
+          const pts = parseInt(pointsToAdd) || 0;
+          const currentBadges = Array.isArray(m.skillBadges) ? m.skillBadges : (Array.isArray(m.badges) ? m.badges : []);
+          const updatedBadges = newBadge && !currentBadges.includes(newBadge) ? [...currentBadges, newBadge] : currentBadges;
+          return { 
+            ...m, 
+            points: currentPoints + pts, 
+            badges: updatedBadges, 
+            skillBadges: updatedBadges 
+          };
+        }
+        return m;
+      });
+
+      // Sort by points descending and reassign rank
+      return updatedList
+        .sort((a, b) => (parseInt(b.points) || 0) - (parseInt(a.points) || 0))
+        .map((item, index) => ({ ...item, rank: index + 1 }));
+    });
+
+    if (currentUser && currentUser.name && currentUser.name.toLowerCase() === studentName.toLowerCase()) {
+      const currentPts = parseInt(currentUser.points) || 0;
+      const pts = parseInt(pointsToAdd) || 0;
+      setCurrentUser(prev => ({ ...prev, points: currentPts + pts }));
+    }
 
     setNotifications(prev => [
       { id: Date.now(), text: `Recognized Student ${studentName} with +${pointsToAdd} Points${newBadge ? ` & '${newBadge}' Badge` : ''}!`, time: "Just now", read: false },
-      ...prev
+      ...(prev || [])
     ]);
+
+    showToast({
+      title: 'Points & Skill Badge Awarded!',
+      message: `Successfully granted +${pointsToAdd} PTS and '${newBadge}' to ${studentName}.`,
+      type: 'success'
+    });
   };
 
   const issueCertificate = (recipient, certTitle, certType) => {
@@ -397,6 +436,7 @@ export const AppProvider = ({ children }) => {
       code: `NEX-CERT-2026-${Math.floor(100 + Math.random() * 900)}`
     };
     setCertificates(prev => [newCert, ...prev]);
+    insertCertificateToSupabase(newCert);
 
     setNotifications(prev => [
       { id: Date.now(), text: `Issued CV Certificate to ${recipient}: ${certTitle}`, time: "Just now", read: false },

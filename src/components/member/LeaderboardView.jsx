@@ -62,7 +62,7 @@ export const LeaderboardView = () => {
                   <td className="py-3 text-slate-600 font-medium pr-2">{m.dept}</td>
                   <td className="py-3 pr-2">
                     <div className="flex flex-wrap gap-1">
-                      {m.skillBadges.map((b, idx) => (
+                      {(Array.isArray(m.skillBadges) ? m.skillBadges : (Array.isArray(m.badges) ? m.badges : [])).map((b, idx) => (
                         <span key={idx} className="px-2 py-0.5 rounded-md bg-emerald-50 text-[#2FA137] border border-emerald-200 text-[10px] font-bold">{b}</span>
                       ))}
                     </div>

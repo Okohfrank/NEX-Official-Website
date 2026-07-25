@@ -81,18 +81,30 @@ export const AdminOverview = () => {
     e.preventDefault();
     if (!awardStudent) return;
 
-    confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
-    awardMemberPoints(awardStudent, awardPointsVal, awardBadgeVal);
-    setActionMsg(`Successfully awarded +${awardPointsVal} Points and '${awardBadgeVal}' Badge to ${awardStudent}!`);
+    try {
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+      }
+      awardMemberPoints(awardStudent, awardPointsVal, awardBadgeVal);
+      setActionMsg(`Successfully awarded +${awardPointsVal} Points and '${awardBadgeVal}' Badge to ${awardStudent}!`);
+    } catch (err) {
+      console.error('Award error:', err);
+    }
   };
 
   const handleIssueCertSubmit = (e) => {
     e.preventDefault();
     if (!certRecipient || !certTitle) return;
 
-    confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
-    issueCertificate(certRecipient, certTitle, certType);
-    setActionMsg(`CV Certificate issued to ${certRecipient} for "${certTitle}"!`);
+    try {
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+      }
+      issueCertificate(certRecipient, certTitle, certType);
+      setActionMsg(`CV Certificate issued to ${certRecipient} for "${certTitle}"!`);
+    } catch (err) {
+      console.error('Certificate issue error:', err);
+    }
   };
 
   return (
