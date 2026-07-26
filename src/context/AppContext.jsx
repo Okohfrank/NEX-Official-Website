@@ -376,22 +376,70 @@ export const AppProvider = ({ children }) => {
 
   const addExecutive = (execData) => {
     const newExec = {
-      id: `exec-${Date.now()}`,
       name: execData.name,
       role: execData.role,
       dept: execData.dept,
-      order: parseInt(execData.order) || executives.length + 1,
+      exec_order: parseInt(execData.order) || executives.length + 1,
       bio: execData.bio,
       quote: execData.quote || '',
       photo: execData.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
       instagram: execData.instagram || '',
       linkedin: execData.linkedin || ''
     };
-    setExecutives(prev => [...prev, newExec].sort((a, b) => a.order - b.order));
+    
+    const insertToDb = async () => {
+      try {
+        const { data, error } = await supabase.from('executives').insert([newExec]).select();
+        if (data && data[0]) {
+          const insertedExec = { ...data[0], order: data[0].exec_order };
+          setExecutives(prev => [...prev, insertedExec].sort((a, b) => a.order - b.order));
+        }
+      } catch (err) {
+        console.error('Exec insert error:', err);
+      }
+    };
+    insertToDb();
   };
 
   const awardMemberPoints = (studentName, pointsToAdd, newBadge) => {
     if (!studentName) return;
+
+    const syncToDb = async () => {
+      try {
+        const { data: profiles } = await supabase.from('profiles').select('*');
+        if (!profiles) return;
+        
+        const target = profiles.find(p => p.name?.toLowerCase() === studentName.toLowerCase() || p.id === studentName || p.full_name?.toLowerCase() === studentName.toLowerCase());
+        
+        if (target) {
+          const currentPts = parseInt(target.points) || 0;
+          const newPts = currentPts + parseInt(pointsToAdd);
+          
+          let updatedSkills = target.skills;
+          if (newBadge) {
+            let currentBadges = [];
+            if (typeof target.skills === 'string') {
+               try { currentBadges = JSON.parse(target.skills); } catch(e) { currentBadges = target.skills.split(','); }
+            } else if (Array.isArray(target.skills)) {
+               currentBadges = target.skills;
+            }
+            if (!currentBadges.includes(newBadge)) {
+              currentBadges.push(newBadge);
+              updatedSkills = JSON.stringify(currentBadges);
+            }
+          }
+          
+          await supabase.from('profiles').update({ points: newPts, skills: updatedSkills }).eq('id', target.id);
+          
+          if (currentUser && currentUser.email === target.email) {
+            setCurrentUser(prev => ({ ...prev, points: newPts }));
+          }
+        }
+      } catch (err) {
+        console.error('Award error:', err);
+      }
+    };
+    syncToDb();
 
     setLeaderboard(prev => {
       const updatedList = (prev || []).map(m => {
@@ -411,17 +459,10 @@ export const AppProvider = ({ children }) => {
         return m;
       });
 
-      // Sort by points descending and reassign rank
       return updatedList
         .sort((a, b) => (parseInt(b.points) || 0) - (parseInt(a.points) || 0))
         .map((item, index) => ({ ...item, rank: index + 1 }));
     });
-
-    if (currentUser && currentUser.name && currentUser.name.toLowerCase() === studentName.toLowerCase()) {
-      const currentPts = parseInt(currentUser.points) || 0;
-      const pts = parseInt(pointsToAdd) || 0;
-      setCurrentUser(prev => ({ ...prev, points: currentPts + pts }));
-    }
 
     setNotifications(prev => [
       { id: Date.now(), text: `Recognized Student ${studentName} with +${pointsToAdd} Points${newBadge ? ` & '${newBadge}' Badge` : ''}!`, time: "Just now", read: false },
@@ -453,7 +494,16 @@ export const AppProvider = ({ children }) => {
     ]);
   };
 
-  const handleTopicChangeReview = (id, approved, feedback) => {
+  const handleTopicChangeReview = async (id, approved, feedback) => {
+    try {
+      await supabase.from('topic_change_requests').update({ 
+        status: approved ? 'Approved' : 'Rejected', 
+        feedback 
+      }).eq('id', id);
+    } catch (err) {
+      console.error('Topic update error:', err);
+    }
+
     setTopicChangeRequests(prev => prev.map(t => {
       if (t.id === id) {
         return { ...t, status: approved ? 'Approved' : 'Rejected', feedback };

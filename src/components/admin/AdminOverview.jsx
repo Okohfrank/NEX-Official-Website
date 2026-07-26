@@ -27,11 +27,11 @@ export const AdminOverview = () => {
   } = useApp();
 
   const [stats, setStats] = useState({
-    totalMembers: 142,
-    unplacedCount: 12,
-    activeGroups: 24,
-    pendingProposals: 8,
-    selectedProjects: 4
+    totalMembers: 0,
+    unplacedCount: 0,
+    activeGroups: 0,
+    pendingProposals: 0,
+    selectedProjects: 0
   });
   const [loading, setLoading] = useState(false);
   const [actionMsg, setActionMsg] = useState(null);
@@ -49,15 +49,15 @@ export const AdminOverview = () => {
     setLoading(true);
     try {
       const { data: profiles } = await supabase.from('profiles').select('id, role');
-      const totalM = profiles && profiles.length > 0 ? profiles.length : 142;
-      const unplacedM = profiles && profiles.length > 0 ? profiles.filter(p => p.role === 'unplaced_member').length : 12;
+      const totalM = profiles ? profiles.length : 0;
+      const unplacedM = profiles ? profiles.filter(p => p.role === 'unplaced_member').length : 0;
 
       const { data: groups } = await supabase.from('placed_groups').select('id');
-      const activeG = groups && groups.length > 0 ? groups.length : 24;
+      const activeG = groups ? groups.length : 0;
 
       const { data: proposals } = await supabase.from('proposals').select('id, status');
-      const pendingP = proposals && proposals.length > 0 ? proposals.filter(p => p.status === 'Under Review').length : 8;
-      const selectedP = proposals && proposals.length > 0 ? proposals.filter(p => p.status === 'Approved').length : 4;
+      const pendingP = proposals ? proposals.filter(p => p.status === 'Under Review').length : 0;
+      const selectedP = proposals ? proposals.filter(p => p.status === 'Approved').length : 0;
 
       setStats({
         totalMembers: totalM,

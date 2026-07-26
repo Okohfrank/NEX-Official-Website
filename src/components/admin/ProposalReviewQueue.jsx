@@ -5,48 +5,39 @@ import { Award, CheckCircle2, RefreshCw, Star, Send, Lock, AlertCircle, HelpCirc
 import confetti from 'canvas-confetti';
 
 export const ProposalReviewQueue = () => {
-  const { topicChangeRequests, handleTopicChangeReview } = useApp();
   const [proposals, setProposals] = useState([]);
+  const [topicChangeRequests, setTopicChangeRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [reviewerFeedbackText, setReviewerFeedbackText] = useState({});
 
-  const fetchProposals = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('proposals').select('*').order('created_at', { ascending: false });
-      if (data && data.length > 0) {
-        setProposals(data);
-      } else {
-        setProposals([
-          {
-            id: "prop-101",
-            group_name: "Group Alpha - Clean Hydro Systems",
-            focus_area: "Water",
-            title: "Solar Water Kiosk with Bio-Sand Filtration",
-            status: "Under Review",
-            feasibility: 4, rigor: 5, scope: 4, safety: 5, skill_use: 4,
-            feedback: "Excellent literature review and clear safety protocol for iron precipitate disposal."
-          },
-          {
-            id: "prop-102",
-            group_name: "Group Beta - Circular Plastics",
-            focus_area: "Waste",
-            title: "Plastic Waste to Eco-Thermal Bricks",
-            status: "Under Review",
-            feasibility: 5, rigor: 4, scope: 4, safety: 4, skill_use: 5,
-            feedback: "Strong interdisciplinary synergy between Chemical Engineering and Building Technology."
-          }
-        ]);
-      }
+      const { data: propData } = await supabase.from('proposals').select('*').order('created_at', { ascending: false });
+      if (propData && propData.length > 0) setProposals(propData);
+      else setProposals([]);
+
+      const { data: tcrData } = await supabase.from('topic_change_requests').select('*').order('created_at', { ascending: false });
+      if (tcrData && tcrData.length > 0) {
+         setTopicChangeRequests(tcrData.map(t => ({
+           id: t.id,
+           groupName: t.group_name,
+           currentTopic: t.current_topic,
+           proposedTopic: t.proposed_topic,
+           reason: t.reason,
+           status: t.status,
+           feedback: t.feedback
+         })));
+      } else setTopicChangeRequests([]);
     } catch (err) {
-      // Smooth fallback
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProposals();
+    fetchData();
   }, []);
 
   const handleDecision = async (id, newStatus, feedbackText) => {
@@ -57,9 +48,7 @@ export const ProposalReviewQueue = () => {
 
     try {
       await supabase.from('proposals').update({ status: newStatus, feedback: feedbackText }).eq('id', id);
-    } catch (err) {
-      // Error handling
-    }
+    } catch (err) {}
   };
 
   const handleScoreChange = async (id, axis, val) => {
@@ -69,6 +58,24 @@ export const ProposalReviewQueue = () => {
       await supabase.from('proposals').update({ [axis]: updatedVal }).eq('id', id);
     } catch (err) {}
   };
+
+  const handleTopicChangeReview = async (id, approved, feedback) => {
+    try {
+      await supabase.from('topic_change_requests').update({ 
+        status: approved ? 'Approved' : 'Rejected', 
+        feedback 
+      }).eq('id', id);
+    } catch (err) {}
+
+    setTopicChangeRequests(prev => prev.map(t => {
+      if (t.id === id) {
+        return { ...t, status: approved ? 'Approved' : 'Rejected', feedback };
+      }
+      return t;
+    }));
+  };
+
+
 
   return (
     <div className="space-y-6 animate-in fade-in w-full">
@@ -84,9 +91,9 @@ export const ProposalReviewQueue = () => {
         </div>
 
         <button
-          onClick={fetchProposals}
+          onClick={fetchData}
           className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all self-start sm:self-auto"
-          title="Refresh Proposals"
+          title="Refresh Data"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
         </button>

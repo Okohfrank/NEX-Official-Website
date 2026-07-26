@@ -78,7 +78,16 @@ export const PlacementEngine = () => {
     }
   };
 
-  const handleSaveGroupLeadership = (groupId) => {
+  const handleSaveGroupLeadership = async (groupId) => {
+    try {
+      await supabase.from('placed_groups').update({ 
+        mentor_name: newMentor || undefined, 
+        team_lead: newLead || undefined 
+      }).eq('id', groupId);
+    } catch (err) {
+      console.error('Leadership update error:', err);
+    }
+
     setPlacedGroups(prev => prev.map(g => {
       if (g.id === groupId) {
         return {

@@ -19,14 +19,31 @@ export const ContentManager = () => {
   const { 
     addEvent, 
     addBounty, 
-    addExecutive, 
-    executives, 
-    events, 
-    bounties 
+    addExecutive
   } = useApp();
 
+  const [executives, setExecutives] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [bounties, setBounties] = useState([]);
   const [activeTab, setActiveTab] = useState('announcements');
   const [statusMsg, setStatusMsg] = useState(null);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [{ data: execs }, { data: evts }, { data: bnts }] = await Promise.all([
+        supabase.from('executives').select('*').order('exec_order', { ascending: true }),
+        supabase.from('events').select('*').order('created_at', { ascending: false }),
+        supabase.from('bounties').select('*').order('created_at', { ascending: false })
+      ]);
+      if (execs) setExecutives(execs);
+      if (evts) setEvents(evts);
+      if (bnts) setBounties(bnts);
+    } catch (err) { console.error('Content fetch error:', err); }
+  };
+
+  React.useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
   // Form States
   const [announcementTitle, setAnnouncementTitle] = useState('');
@@ -60,9 +77,19 @@ export const ContentManager = () => {
     e.preventDefault();
     if (!announcementTitle || !announcementText) return;
 
-    setStatusMsg({ type: 'success', text: 'Announcement published successfully to all member dashboard feeds!' });
-    setAnnouncementTitle('');
-    setAnnouncementText('');
+    try {
+      await supabase.from('announcements').insert([{
+        title: announcementTitle,
+        content: announcementText,
+        author: 'Admin / NEX Leadership',
+        priority: 'High'
+      }]);
+      setStatusMsg({ type: 'success', text: 'Announcement published successfully to all member dashboard feeds!' });
+      setAnnouncementTitle('');
+      setAnnouncementText('');
+    } catch (err) {
+      setStatusMsg({ type: 'error', text: 'Failed to publish announcement.' });
+    }
   };
 
   const handleCreateEvent = (e) => {
@@ -84,6 +111,8 @@ export const ContentManager = () => {
     setEvtDate('');
     setEvtTime('');
     setEvtLocation('');
+    
+    setTimeout(fetchDashboardData, 1500);
   };
 
   const handleCreateBounty = (e) => {
@@ -101,9 +130,11 @@ export const ContentManager = () => {
     setStatusMsg({ type: 'success', text: `Problem Bounty "${bountyTitle}" added to Problem Bounty Board!` });
     setBountyTitle('');
     setBountyDesc('');
+    
+    setTimeout(fetchDashboardData, 1500);
   };
 
-  const handleCreateExecutive = (e) => {
+  const handleCreateExecutive = async (e) => {
     e.preventDefault();
     if (!execName || !execRole) return;
 
@@ -123,15 +154,29 @@ export const ContentManager = () => {
     setExecBio('');
     setExecQuote('');
     setExecPhoto('');
+    
+    // Refresh local lists
+    setTimeout(fetchDashboardData, 1500);
   };
 
   const handleUploadPublication = async (e) => {
     e.preventDefault();
     if (!pubTitle) return;
 
-    setStatusMsg({ type: 'success', text: `Research publication "${pubTitle}" registered in Open Archive!` });
-    setPubTitle('');
-    setPubAbstract('');
+    try {
+      await supabase.from('publications').insert([{
+        title: pubTitle,
+        abstract: pubAbstract,
+        domain: 'Research Collection',
+        authors: 'NEX Teams',
+        link: '#'
+      }]);
+      setStatusMsg({ type: 'success', text: `Research publication "${pubTitle}" registered in Open Archive!` });
+      setPubTitle('');
+      setPubAbstract('');
+    } catch (err) {
+      setStatusMsg({ type: 'error', text: 'Failed to upload publication.' });
+    }
   };
 
   return (
