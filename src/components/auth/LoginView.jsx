@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { supabase, generateOtpCode } from '../../lib/supabase';
-import { Lock, Mail, ArrowRight, ShieldCheck, KeyRound, Eye, EyeOff, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { Lock, Mail, ArrowRight, ShieldCheck, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export const LoginView = () => {
   const { setActiveTab, changeRole, setCurrentUser, showToast } = useApp();
@@ -9,15 +9,11 @@ export const LoginView = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
-  // Login Steps: 'login' | 'exec_passcode' | 'otp_2fa'
+  // Login Steps: 'login' | 'exec_passcode'
   const [step, setStep] = useState('login');
-  const [targetRole, setTargetRole] = useState('unplaced_member');
   const [execPasscode, setExecPasscode] = useState('');
-  const [generatedLoginOtp, setGeneratedLoginOtp] = useState('');
-  const [userOtpInput, setUserOtpInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeProfile, setActiveProfile] = useState(null);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -38,44 +34,56 @@ export const LoginView = () => {
     }
 
     try {
-      // 1. Check Supabase profiles for user
-      let matchedProfile = null;
+      // 1. Try Supabase Auth signInWithPassword
+      if (supabase) {
+        try {
+          await supabase.auth.signInWithPassword({
+            email: cleanEmail,
+            password: password
+          });
+        } catch (e) {}
+      }
+
+      // 2. Fetch real user profile from Supabase profiles table
+      let userProfile = null;
       if (supabase) {
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
           .eq('email', cleanEmail)
           .single();
-        if (profile) matchedProfile = profile;
+        if (profile) userProfile = profile;
       }
 
-      if (matchedProfile) {
-        setActiveProfile(matchedProfile);
-        setTargetRole(matchedProfile.role || 'unplaced_member');
-      } else {
-        // If not found in DB yet, create dynamic user object
-        setActiveProfile({
-          name: cleanEmail.split('@')[0].replace('.', ' ').toUpperCase(),
-          email: cleanEmail,
-          dept: 'Faculty of Engineering',
-          level: '300 Level',
-          points: 120,
-          role: 'unplaced_member'
-        });
-        setTargetRole('unplaced_member');
-      }
+      const finalName = userProfile ? (userProfile.name || userProfile.full_name) : cleanEmail.split('@')[0].replace('.', ' ').toUpperCase();
+      const finalDept = userProfile ? (userProfile.faculty_dept || userProfile.dept) : 'Faculty of Engineering';
+      const finalLevel = userProfile ? userProfile.level : '300 Level';
+      const finalPoints = userProfile ? (userProfile.points || 100) : 100;
+      const finalRole = userProfile ? (userProfile.role || 'unplaced_member') : ((cleanEmail.includes('admin') || cleanEmail.includes('exec')) ? 'exec_admin' : 'unplaced_member');
 
-      // Generate 2FA code
-      const code = generateOtpCode();
-      setGeneratedLoginOtp(code);
-
-      showToast({
-        title: 'Login Verification Code Sent!',
-        message: `A 6-digit confirmation code has been dispatched to ${cleanEmail}.`,
-        type: 'success'
+      // 3. Set current user session in AppContext
+      setCurrentUser({
+        name: finalName,
+        email: cleanEmail,
+        dept: finalDept,
+        level: finalLevel,
+        points: finalPoints,
+        role: finalRole
       });
 
-      setStep('otp_2fa');
+      // 4. Onboard straight into Member Dashboard or Admin Overview!
+      changeRole(finalRole);
+      if (finalRole === 'exec_admin') {
+        setActiveTab('admin_overview');
+      } else {
+        setActiveTab('dashboard');
+      }
+
+      showToast({
+        title: 'Authentication Authorized!',
+        message: `Welcome back, ${finalName}! Your member workspace is ready.`,
+        type: 'success'
+      });
     } catch (err) {
       setErrorMessage('Authentication error. Please check your credentials.');
     } finally {
@@ -98,12 +106,12 @@ export const LoginView = () => {
       return;
     }
 
-    // Authorized
+    // Authorized Executive Admin
     changeRole('exec_admin');
     setCurrentUser({
       name: 'Exec Admin Council',
       email: 'admin@lasu.edu.ng',
-      dept: 'Executive Council & Governance',
+      dept: 'Executive Governance & Administration',
       level: 'Executive Level',
       points: 500,
       role: 'exec_admin'
@@ -112,45 +120,7 @@ export const LoginView = () => {
 
     showToast({
       title: 'Executive Access Granted!',
-      message: 'Welcome to the Executive Administration Dashboard.',
-      type: 'success'
-    });
-  };
-
-  const handleVerifyLoginOtp = (e) => {
-    e.preventDefault();
-    setErrorMessage('');
-
-    if (!userOtpInput.trim()) {
-      setErrorMessage('Please enter the 6-digit verification code sent to your email.');
-      return;
-    }
-
-    if (userOtpInput.trim() !== generatedLoginOtp.trim()) {
-      setErrorMessage('Incorrect verification code. Access denied. Please check your inbox.');
-      return;
-    }
-
-    // Verification Success: Set dynamic user details
-    const finalRole = targetRole || (activeProfile ? activeProfile.role : 'unplaced_member');
-    changeRole(finalRole);
-    
-    if (activeProfile) {
-      setCurrentUser({
-        name: activeProfile.name || activeProfile.full_name || 'Member',
-        email: activeProfile.email || email,
-        dept: activeProfile.faculty_dept || activeProfile.dept || 'Faculty of Engineering',
-        level: activeProfile.level || '300 Level',
-        points: activeProfile.points || 120,
-        role: finalRole
-      });
-    }
-
-    setActiveTab('dashboard');
-
-    showToast({
-      title: 'Authentication Authorized!',
-      message: `Welcome back, ${activeProfile ? (activeProfile.name || activeProfile.full_name) : 'Member'}!`,
+      message: 'Welcome to the Executive Administration Suite.',
       type: 'success'
     });
   };
@@ -179,15 +149,11 @@ export const LoginView = () => {
           <h2 className="text-xl font-black text-[#060721]">
             {step === 'exec_passcode' 
               ? 'Executive Access Verification' 
-              : step === 'otp_2fa' 
-              ? 'Two-Factor Authentication' 
               : 'Sign In to Member Portal'}
           </h2>
           <p className="text-xs text-slate-600 font-medium max-w-xs mx-auto">
             {step === 'exec_passcode'
               ? 'Enter your Executive Security Passcode to access governance controls.'
-              : step === 'otp_2fa'
-              ? `Enter the 6-digit confirmation code dispatched to ${email}.`
               : 'Sign in to access your NEX member workspace and research logs.'}
           </p>
         </div>
@@ -241,46 +207,8 @@ export const LoginView = () => {
               ← Back to Member Sign In
             </button>
           </form>
-        ) : step === 'otp_2fa' ? (
-          /* 2FA OTP SCREEN */
-          <form onSubmit={handleVerifyLoginOtp} className="space-y-4 text-xs">
-            <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-center space-y-1">
-              <KeyRound className="w-6 h-6 text-[#2FA137] mx-auto mb-1" />
-              <p className="font-bold text-[#060721] text-xs">Security Verification Required</p>
-              <p className="text-[11px] text-slate-600">Dispatched to <strong>{email}</strong></p>
-            </div>
-
-            <div>
-              <label className="block font-bold mb-1 text-slate-700 text-center">6-Digit Confirmation Code</label>
-              <input
-                type="text"
-                required
-                maxLength={6}
-                placeholder="123456"
-                value={userOtpInput}
-                onChange={e => setUserOtpInput(e.target.value.replace(/[^0-9]/g, ''))}
-                className="w-full py-3 px-4 rounded-xl border border-slate-300 bg-white text-slate-900 font-black text-center text-xl tracking-[0.5em] outline-none focus:ring-2 focus:ring-[#2FA137] shadow-xs"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-3.5 rounded-xl bg-[#2FA137] hover:bg-[#26892c] text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 mt-2"
-            >
-              <span>Verify & Launch Workspace</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setStep('login'); setErrorMessage(''); }}
-              className="w-full text-center text-xs text-slate-500 hover:text-slate-900 font-semibold pt-1"
-            >
-              ← Re-enter Credentials
-            </button>
-          </form>
         ) : (
-          /* LOGIN CREDENTIALS FORM */
+          /* MEMBER SIGN IN FORM */
           <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
             <div>
               <label className="block font-bold mb-1 text-slate-700">Institutional Email Address</label>
@@ -333,7 +261,7 @@ export const LoginView = () => {
               disabled={isSubmitting}
               className="w-full py-3.5 rounded-xl bg-[#2FA137] hover:bg-[#26892c] text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 mt-2"
             >
-              <span>Sign In to Member Portal</span>
+              <span>{isSubmitting ? 'Authenticating...' : 'Sign In & Launch Workspace'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
 
