@@ -233,10 +233,24 @@ export const AppProvider = ({ children }) => {
   };
 
   // Update current user profile when role changes
-  const changeRole = (newRole) => {
+  const changeRole = (newRole, explicitProfile = null) => {
     setUserRole(newRole);
-    let targetProfile = MOCK_USER_PROFILES.publicGuest;
 
+    if (explicitProfile) {
+      setCurrentUser(explicitProfile);
+      localStorage.setItem('nex_currentUser', JSON.stringify(explicitProfile));
+      return;
+    }
+
+    // Preserve active signed-up/logged-in user profile
+    if (currentUser && currentUser.email && currentUser.email !== 'guest@nex.edu.ng') {
+      const updatedProfile = { ...currentUser, role: newRole };
+      setCurrentUser(updatedProfile);
+      localStorage.setItem('nex_currentUser', JSON.stringify(updatedProfile));
+      return;
+    }
+
+    let targetProfile = MOCK_USER_PROFILES.publicGuest;
     switch (newRole) {
       case 'public':
         targetProfile = MOCK_USER_PROFILES.publicGuest;
@@ -260,14 +274,6 @@ export const AppProvider = ({ children }) => {
         break;
       default:
         break;
-    }
-
-    // Restore saved custom profile & gallery photo if available in userProfilesStore
-    if (targetProfile.email) {
-      const emailKey = targetProfile.email.toLowerCase();
-      if (userProfilesStore[emailKey]) {
-        targetProfile = { ...targetProfile, ...userProfilesStore[emailKey] };
-      }
     }
 
     setCurrentUser(targetProfile);

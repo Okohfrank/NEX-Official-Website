@@ -61,18 +61,20 @@ export const LoginView = () => {
       const finalPoints = userProfile ? (userProfile.points || 100) : 100;
       const finalRole = userProfile ? (userProfile.role || 'unplaced_member') : ((cleanEmail.includes('admin') || cleanEmail.includes('exec')) ? 'exec_admin' : 'unplaced_member');
 
-      // 3. Set current user session in AppContext
-      setCurrentUser({
+      const authenticatedUser = {
         name: finalName,
         email: cleanEmail,
         dept: finalDept,
         level: finalLevel,
         points: finalPoints,
         role: finalRole
-      });
+      };
+
+      // 3. Set current user session in AppContext
+      setCurrentUser(authenticatedUser);
 
       // 4. Onboard straight into Member Dashboard or Admin Overview!
-      changeRole(finalRole);
+      changeRole(finalRole, authenticatedUser);
       if (finalRole === 'exec_admin') {
         setActiveTab('admin_overview');
       } else {

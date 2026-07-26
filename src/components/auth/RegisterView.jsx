@@ -210,7 +210,7 @@ export const RegisterView = () => {
         setIsSubmitting(false);
       }
 
-      updateUserProfile({
+      const newProfile = {
         name: formData.fullName,
         email: formData.email,
         dept: formData.department,
@@ -221,9 +221,10 @@ export const RegisterView = () => {
         focusAreas: formData.focusAreas,
         role: 'unplaced_member',
         points: 100
-      });
+      };
 
-      changeRole('unplaced_member');
+      updateUserProfile(newProfile);
+      changeRole('unplaced_member', newProfile);
       setActiveTab('dashboard');
 
       showToast({
