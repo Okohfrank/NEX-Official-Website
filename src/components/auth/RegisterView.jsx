@@ -319,9 +319,7 @@ export const RegisterView = () => {
                 </p>
                 <p className="text-[10px] text-slate-400 pt-1">Code expires in 15 minutes • Check your inbox or spam folder</p>
               </div>
-            </div>
-
-            {/* OTP Verification Form */}
+            </div>            {/* OTP & Link Verification Form */}
             <form onSubmit={handleVerifyOtp} className="space-y-4">
               {otpError && (
                 <div className="p-3 rounded-xl bg-red-50 text-red-700 border border-red-200 text-xs font-bold flex items-center gap-2">
@@ -330,8 +328,16 @@ export const RegisterView = () => {
                 </div>
               )}
 
+              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 space-y-2">
+                <p className="font-bold text-[#060721] text-xs">✉ How to Confirm Your Account:</p>
+                <ul className="text-[11px] text-slate-700 space-y-1 list-disc pl-4 font-medium">
+                  <li><strong>Method 1 (Instant Link):</strong> Open your email inbox and click <strong>"Confirm email address"</strong>. Then click the button below.</li>
+                  <li><strong>Method 2 (6-Digit OTP):</strong> If you received a 6-digit code, enter it below to verify.</li>
+                </ul>
+              </div>
+
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Enter 6-Digit Confirmation Code *</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Enter 6-Digit Confirmation Code (Optional if Link Clicked) *</label>
                 <div className="relative">
                   <KeyRound className="w-4 h-4 text-[#2FA137] absolute left-3.5 top-3" />
                   <input
@@ -348,14 +354,34 @@ export const RegisterView = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col items-center gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   type="submit"
                   disabled={isSubmitting}
                   className="w-full py-3 rounded-xl bg-[#2FA137] hover:bg-[#26892c] text-white font-black text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
                 >
-                  {isSubmitting ? 'Confirming Code...' : 'Verify Code & Activate Account'}
+                  {isSubmitting ? 'Verifying Code...' : 'Verify 6-Digit Code'}
                   <ArrowRight className="w-4 h-4" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setIsSubmitting(true);
+                    await confirmUserInSupabase(formData);
+                    setIsSubmitting(false);
+                    setStep('completed');
+                    showToast({
+                      title: 'Account Activated!',
+                      message: 'Your account is verified and ready.',
+                      type: 'success'
+                    });
+                  }}
+                  disabled={isSubmitting}
+                  className="w-full py-3 rounded-xl bg-[#060721] hover:bg-[#060721]/90 text-white font-black text-xs shadow-md transition-all flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-[#2FA137]" />
+                  <span>I've Clicked Email Link</span>
                 </button>
               </div>
             </form>
