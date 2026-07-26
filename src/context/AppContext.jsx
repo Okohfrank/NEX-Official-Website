@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   MOCK_USER_PROFILES,
-  CURRENT_CYCLE
+  CURRENT_CYCLE,
+  EXECUTIVES_DATA
 } from '../data/mockData';
 import {
   fetchSupabaseBounties,
@@ -74,9 +75,12 @@ export const AppProvider = ({ children }) => {
   const [executives, setExecutives] = useState(() => {
     const saved = localStorage.getItem('nex_executives');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.length > 0) return parsed;
+      } catch (e) {}
     }
-    return [];
+    return EXECUTIVES_DATA;
   });
 
   const [certificates, setCertificates] = useState(() => {
@@ -102,7 +106,9 @@ export const AppProvider = ({ children }) => {
         if (eData) setEvents(eData);
 
         const { data: execData } = await supabase.from('executives').select('*').order('exec_order', { ascending: true });
-        if (execData) setExecutives(execData);
+        if (execData && execData.length > 0) {
+          setExecutives(execData.map(e => ({ ...e, order: e.exec_order ?? e.order })));
+        }
 
         const { data: certData } = await supabase.from('certificates').select('*').order('created_at', { ascending: false });
         if (certData) setCertificates(certData);

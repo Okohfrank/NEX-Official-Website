@@ -7,6 +7,129 @@ export const FOUNDER_DATA = {
   narrative: `NEX was conceived and founded by Oyewole Samod Atanda, a first-class graduate of Chemical and Polymer Engineering from Lagos State University, and a multiple-time recipient of the Scholar of the Year award. Driven by a conviction that engineering education must extend beyond the classroom into real, implemented solutions, he conceptualized NEX to bridge the gap between academic research and real-world societal impact. NEX stands today as a testament to what happens when academic excellence is paired with a genuine commitment to community transformation.`
 };
 
+export const EXECUTIVES_DATA = [
+  {
+    id: "exec-1",
+    name: "Okoh Frank Osaigie",
+    role: "President",
+    dept: "Chemical Engineering",
+    bio: "Frank O. Okoh is a Chemical Engineering undergraduate, researcher, and innovation enthusiast passionate about bridging engineering, artificial intelligence, and sustainability. As the founding President of NEX (Network of Engineering Xcellence), he is committed to fostering a culture of research, interdisciplinary collaboration, and practical problem-solving that transforms ideas into real-world impact. His vision is to inspire students to build, innovate, and lead solutions that address local and global challenges.",
+    photo: "/President.jpeg",
+    order: 1,
+    linkedin: "https://www.linkedin.com/in/okoh-frank-a8a249329",
+    quote: "Bridging engineering, artificial intelligence, and sustainability to transform ideas into real-world impact."
+  },
+  {
+    id: "exec-2",
+    name: "Olotuche Joshua",
+    role: "Vice President",
+    dept: "Electronic & Computer Engineering",
+    bio: "Joshua Olotuche is a founder and UI/UX designer passionate about building technology that solves real problems for university students. He is an Electronic and Computer Engineering student at Lagos State University (LASU), building Unify Learn — a platform that helps students take ownership of their academic journeys.",
+    photo: "/Vice President.jpeg",
+    order: 2,
+    linkedin: "https://www.linkedin.com/in/joshua-olotuche-350423287",
+    quote: "Building technology that solves real problems for university students."
+  },
+  {
+    id: "exec-3",
+    name: "Ajayi Light",
+    role: "General Secretary",
+    dept: "Mechanical Engineering",
+    bio: "Ajayi Light is a Mechanical Engineering student at Lagos State University (LASU) passionate about organizational coordination, operations, and leadership. As the General Secretary, her primary role is to ensure the smooth coordination of meetings, records, communication, and official documentation of activities held in NEX.",
+    photo: "/General Secretary.jpeg",
+    order: 3,
+    linkedin: "https://www.linkedin.com/in/ajayi-deborah-016a41331",
+    quote: "Ensuring smooth coordination, clear communication, and official documentation."
+  },
+  {
+    id: "exec-4",
+    name: "Atolagbe Yusuf",
+    role: "Technical & Research Lead",
+    dept: "Electronic & Computer Engineering",
+    bio: "Atolagbe Yusuf is an embedded engineer passionate about solving real-world problems, striving to build hardware and software systems that make the world a better place.",
+    photo: "/Technical and research lead.jpeg",
+    order: 4,
+    linkedin: "https://www.linkedin.com/in/yusuf-atolagbe-a24947328",
+    quote: "Striving to build embedded systems that make the world a better place."
+  },
+  {
+    id: "exec-5",
+    name: "Chukwuebuka Emmanuel Oguebuana",
+    role: "Finance Officer",
+    dept: "Chemical Engineering",
+    bio: "Chukwuebuka Emmanuel Oguebuana is a Chemical Engineering student at Lagos State University (LASU) with a strong passion for engineering, innovation, and leadership. He actively serves as a leader in the Nigerian Society of Chemical Engineers (NSChE), where he is committed to promoting academic excellence, teamwork, sustainable technologies, and research.",
+    photo: "/Finance officer.jpeg",
+    order: 5,
+    linkedin: "https://linkedin.com",
+    quote: "Promoting academic excellence, sustainable technologies, and financial stewardship."
+  },
+  {
+    id: "exec-6",
+    name: "Olaoye Eunice Tolulope",
+    role: "Membership & Community Lead",
+    dept: "Chemical Engineering",
+    bio: "Eunice is a Chemical Engineering student at LASU Epe Campus and an active leader across SPE and NSChE. Passionate about community building, she's focused on making NEX a space where every member feels welcomed, supported, and inspired to grow.",
+    photo: "/Membership and community lead.jpeg",
+    order: 6,
+    linkedin: "https://www.linkedin.com/in/eunicetolulope",
+    quote: "Making NEX a space where every member feels welcomed, supported, and inspired to grow."
+  },
+  {
+    id: "exec-7",
+    name: "Oke Habeeb Oluwatobiloba",
+    role: "School of Agriculture Coordinator I",
+    dept: "Animal Science",
+    bio: "Oke Habeeb Oluwatobiloba is the Founder and Executive Director of HABSFOUNDATION and a final-year Animal Science student at Lagos State University (LASU), Epe Campus. He is passionate about student leadership, youth development, and community impact, with experience coordinating initiatives that empower young people and promote positive change.",
+    photo: "/Agric Coordinator 1.jpeg",
+    order: 7,
+    linkedin: "https://www.linkedin.com/in/habeeb-oke-65b46728a",
+    quote: "Empowering young people and driving sustainable agricultural impact."
+  },
+  {
+    id: "exec-8",
+    name: "Paul Glory Ojima",
+    role: "EV Coordinator I (Environmental Sciences)",
+    dept: "Industrial Design",
+    bio: "Paul Glory Ojima is an Industrial Design student at Lagos State University (LASU) with a passion for leadership, creativity, and student development. As the EV Coordinator I, she is committed to fostering collaboration, supporting student growth, and contributing to initiatives that create a positive impact within the university community.",
+    photo: "/EV Coordinator 1.jpeg",
+    order: 8,
+    linkedin: "https://linkedin.com",
+    quote: "Fostering collaboration, student growth, and creative environmental design."
+  },
+  {
+    id: "exec-9",
+    name: "Mutmainnah Giwa Oyindamola",
+    role: "EV Coordinator II (Environmental Sciences)",
+    dept: "Environmental Management",
+    bio: "Mutmainnah Giwa is an Environmental Management student at Lagos State University (LASU). She is passionate about leadership, teamwork, and using creativity to make a positive impact. She enjoys organizing projects, creating engaging content, and contributing to initiatives that foster growth within the university community.",
+    photo: "/EV Coordinator 2.jpeg",
+    order: 9,
+    linkedin: "https://www.linkedin.com/in/mutmainnah-giwa-a2566233b",
+    quote: "Using creativity, teamwork, and environmental management to foster community growth."
+  },
+  {
+    id: "exec-10",
+    name: "Godonu Samuel",
+    role: "Asst. Media & Communication Lead",
+    dept: "Chemical Engineering",
+    bio: "Samuel is a Graphic Designer, Cinematographer, and videographer operating at the intersection of engineering and creativity. As the Asst. Media and Comms Lead, he leverages digital media tools incorporated with technical camera expertise to direct NEX visual storytelling and project showcases.",
+    photo: "/Asst. Media and comm..jpeg",
+    order: 10,
+    linkedin: "https://www.linkedin.com/in/samuelgodonu",
+    quote: "Reaching people through digital storytelling at the intersection of engineering and creativity."
+  },
+  {
+    id: "exec-11",
+    name: "Dev Mubarak",
+    role: "Head of Digital Infrastructure & Web Systems",
+    dept: "Computer Science & Web Systems",
+    bio: "Dev Mubarak is the Head of Digital Infrastructure & Web Systems at NEX. He leads the engineering, architecture, and deployment of NEX web platforms, digital systems, and database infrastructure, driving technological excellence across the organization.",
+    photo: "/mubarak.jpg",
+    order: 11,
+    instagram: "https://www.instagram.com/dev.mubarak/",
+    quote: "Architecting full-stack digital systems and web infrastructure for NEX."
+  }
+];
 
 
 export const FOCUS_AREAS = [
