@@ -37,13 +37,13 @@ export const AdminOverview = () => {
   const [actionMsg, setActionMsg] = useState(null);
 
   // Forms
-  const [awardStudent, setAwardStudent] = useState('Oyewole Samod Atanda');
-  const [awardPointsVal, setAwardPointsVal] = useState('150');
-  const [awardBadgeVal, setAwardBadgeVal] = useState('Water Systems Specialist');
+  const [awardStudent, setAwardStudent] = useState('');
+  const [awardPointsVal, setAwardPointsVal] = useState('');
+  const [awardBadgeVal, setAwardBadgeVal] = useState('');
 
-  const [certRecipient, setCertRecipient] = useState('George Ikechukwu');
-  const [certTitle, setCertTitle] = useState('2026 Interdisciplinary Hydro-Filter Project Completion');
-  const [certType, setCertType] = useState('Project Completion Certificate');
+  const [certRecipient, setCertRecipient] = useState('');
+  const [certTitle, setCertTitle] = useState('');
+  const [certType, setCertType] = useState('');
 
   const fetchAdminStats = async () => {
     setLoading(true);

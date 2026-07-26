@@ -54,17 +54,17 @@ export const ContentManager = () => {
   const [evtDate, setEvtDate] = useState('');
   const [evtTime, setEvtTime] = useState('');
   const [evtLocation, setEvtLocation] = useState('');
-  const [evtCategory, setEvtCategory] = useState('Technical Workshop');
+  const [evtCategory, setEvtCategory] = useState('');
 
   const [bountyTitle, setBountyTitle] = useState('');
-  const [bountyDomain, setBountyDomain] = useState('Water Purity & Hydrology');
-  const [bountyBy, setBountyBy] = useState('UNDP / Admin Problem Challenge');
+  const [bountyDomain, setBountyDomain] = useState('');
+  const [bountyBy, setBountyBy] = useState('');
   const [bountyDesc, setBountyDesc] = useState('');
 
   const [execName, setExecName] = useState('');
   const [execRole, setExecRole] = useState('');
-  const [execDept, setExecDept] = useState('Faculty of Engineering');
-  const [execOrder, setExecOrder] = useState('1');
+  const [execDept, setExecDept] = useState('');
+  const [execOrder, setExecOrder] = useState('');
   const [execBio, setExecBio] = useState('');
   const [execQuote, setExecQuote] = useState('');
   const [execPhoto, setExecPhoto] = useState('');

@@ -241,9 +241,21 @@ export const CURRENT_CYCLE = {
 
 export const MOCK_USER_PROFILES = {
   publicGuest: {
+    id: "guest-000",
+    name: "Visitor",
+    email: "guest@nex.edu.ng",
     role: "public",
-    name: "Prospective Visitor",
-    email: "guest@university.edu.ng"
+    avatar: null
+  },
+  execAdmin: {
+    id: "exec-000",
+    name: "Engr. Oyewole Samod Atanda",
+    email: "admin@lasu.edu.ng",
+    role: "exec_admin",
+    dept: "Executive Governance & Administration",
+    level: "Executive Level",
+    points: 0,
+    avatar: null
   },
   unplacedStudent: {
     role: "unplaced_member",

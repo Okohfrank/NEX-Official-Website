@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { Lock, Mail, ArrowRight, ShieldCheck, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export const LoginView = () => {
-  const { setActiveTab, changeRole, setCurrentUser, showToast } = useApp();
+  const { setActiveTab, changeRole, setCurrentUser, currentUser, showToast } = useApp();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -107,17 +107,39 @@ export const LoginView = () => {
     e.preventDefault();
     setErrorMessage('');
 
-    if (execPasscode.trim() !== 'NEX-2026') {
+    const code = (execPasscode || '').trim().toUpperCase();
+
+    if (!code) {
+      setErrorMessage('Please enter the Executive Security Passcode.');
+      return;
+    }
+
+    if (code !== 'NEX-2026') {
       setErrorMessage('Invalid Executive Security Passcode. Access Denied.');
       return;
     }
 
-    setIsExecVerified(true);
-    setStep('login');
+    if (currentUser && currentUser.email && currentUser.email !== 'guest@nex.edu.ng') {
+       const upgradedUser = { ...currentUser, role: 'exec_admin' };
+       setCurrentUser(upgradedUser);
+       changeRole('exec_admin', upgradedUser);
+    } else {
+       const execUser = {
+         name: 'Engr. Oyewole Samod Atanda',
+         email: 'admin@lasu.edu.ng',
+         dept: 'Executive Governance & Administration',
+         level: 'Executive Level',
+         points: 500,
+         role: 'exec_admin'
+       };
+       setCurrentUser(execUser);
+       changeRole('exec_admin', execUser);
+    }
 
+    setActiveTab('admin_overview');
     showToast({
-      title: 'Passcode Verified',
-      message: 'Executive Access unlocked. Please sign in with your own account to proceed.',
+      title: 'Executive Access Granted!',
+      message: 'Welcome to the Executive Administration Suite.',
       type: 'success'
     });
   };
@@ -178,7 +200,6 @@ export const LoginView = () => {
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
                   type="password"
-                  required
                   maxLength={16}
                   placeholder="••••••••••••"
                   value={execPasscode}
@@ -190,6 +211,7 @@ export const LoginView = () => {
 
             <button
               type="submit"
+              onClick={handleVerifyExecPasscode}
               className="w-full py-3.5 rounded-xl bg-[#060721] hover:bg-[#060721]/90 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
             >
               <ShieldCheck className="w-4 h-4 text-[#2FA137]" />

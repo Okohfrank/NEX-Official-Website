@@ -4,17 +4,8 @@ import { UserCheck, Users, Plus, CheckCircle2, Sparkles, RefreshCw, User, Shield
 import confetti from 'canvas-confetti';
 
 export const PlacementEngine = () => {
-  const [unplacedMembers, setUnplacedMembers] = useState([
-    { id: '1', full_name: "David Olanrewaju", department: "Faculty of Engineering (Electrical)", level: "300L", focus: "Energy", skills: ["Embedded Systems", "Circuit Design"] },
-    { id: '2', full_name: "Blessing Okon", department: "Faculty of Environmental Sciences (Building Tech)", level: "400L", focus: "Waste", skills: ["GIS", "Urban Planning"] },
-    { id: '3', full_name: "Emmanuel Kalu", department: "Faculty of Agriculture (Agronomy)", level: "300L", focus: "Agriculture", skills: ["Soil Science", "Hydroponics"] },
-    { id: '4', full_name: "Seyi Makinde", department: "Faculty of Engineering (Mechanical)", level: "500L", focus: "Water", skills: ["CAD 3D", "Fluid Dynamics"] },
-    { id: '5', full_name: "Zainab Bello", department: "Faculty of Science (Computer Science)", level: "400L", focus: "Digital Innovation", skills: ["Python", "IoT", "AI"] }
-  ]);
-
-  const [placedGroups, setPlacedGroups] = useState([
-    { id: 'g1', name: "Group Gamma - Smart Agriculture", focus: "Agriculture", members_count: 5, teamLead: "Emmanuel Kalu", mentor: "Engr. Dr. Charles Nwankwo" }
-  ]);
+  const [unplacedMembers, setUnplacedMembers] = useState([]);
+  const [placedGroups, setPlacedGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [newLead, setNewLead] = useState('');

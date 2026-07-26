@@ -9,7 +9,8 @@ import {
   fetchSupabaseEvents,
   insertEventToSupabase,
   fetchSupabaseCertificates,
-  insertCertificateToSupabase
+  insertCertificateToSupabase,
+  supabase
 } from '../lib/supabase';
 
 const AppContext = createContext();
@@ -590,6 +591,7 @@ export const AppProvider = ({ children }) => {
     logout,
     resetAllData,
     currentUser,
+    setCurrentUser,
     updateUserProfile,
     activeTab,
     setActiveTab,
