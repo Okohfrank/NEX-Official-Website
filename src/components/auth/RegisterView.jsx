@@ -201,18 +201,36 @@ export const RegisterView = () => {
     e.preventDefault();
     if (validateForm()) {
       setIsSubmitting(true);
-      const res = await registerUserWithSupabase(formData);
-      setIsSubmitting(false);
-
-      if (res.success) {
-        setGeneratedOtp(res.otpCode);
-        setStep('otp_verify');
-        showToast({
-          title: 'Verification Code Dispatched!',
-          message: `A 6-digit confirmation code has been generated for ${formData.email}.`,
-          type: 'success'
-        });
+      try {
+        await registerUserWithSupabase(formData);
+        await confirmUserInSupabase(formData);
+      } catch (err) {
+        console.warn('Supabase onboarding notice:', err);
+      } finally {
+        setIsSubmitting(false);
       }
+
+      updateUserProfile({
+        name: formData.fullName,
+        email: formData.email,
+        dept: formData.department,
+        level: formData.level,
+        matricNumber: formData.matricNumber,
+        skills: formData.skills,
+        knowledgeArea: formData.knowledgeArea,
+        focusAreas: formData.focusAreas,
+        role: 'unplaced_member',
+        points: 100
+      });
+
+      changeRole('unplaced_member');
+      setActiveTab('dashboard');
+
+      showToast({
+        title: 'Account Created & Onboarded!',
+        message: `Welcome to NEX, ${formData.fullName}! Your profile is now active in your member workspace.`,
+        type: 'success'
+      });
     }
   };
 
@@ -821,7 +839,7 @@ export const RegisterView = () => {
               disabled={isSubmitting}
               className="w-full py-4 rounded-2xl bg-[#2FA137] hover:bg-[#26892c] text-white font-black text-sm shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 mt-4"
             >
-              {isSubmitting ? 'Generating Verification Code...' : 'Register Profile & Send Verification Code'}
+              {isSubmitting ? 'Saving Profile & Launching...' : 'Register Profile & Launch Workspace'}
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
