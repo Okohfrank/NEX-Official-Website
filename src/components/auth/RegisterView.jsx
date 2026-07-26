@@ -218,19 +218,21 @@ export const RegisterView = () => {
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    if (!userOtpInput.trim()) {
-      setOtpError('Please enter the 6-digit confirmation code.');
-      return;
-    }
-
-    if (userOtpInput.trim() !== generatedOtp.trim()) {
-      setOtpError('Invalid confirmation code. Please check the code delivered below.');
+    setOtpError('');
+    
+    if (!userOtpInput.trim() || userOtpInput.trim().length < 6) {
+      setOtpError('Please enter the 6-digit confirmation code sent to your email.');
       return;
     }
 
     setIsSubmitting(true);
-    await confirmUserInSupabase(formData);
+    const res = await confirmUserInSupabase(formData, userOtpInput);
     setIsSubmitting(false);
+
+    if (res && res.error) {
+      setOtpError(res.error);
+      return;
+    }
 
     setStep('completed');
     showToast({
@@ -315,20 +317,6 @@ export const RegisterView = () => {
                 <p className="text-slate-300 text-[11px] leading-relaxed">
                   A security verification email containing your 6-digit confirmation code has been dispatched to <strong className="text-white">{formData.email}</strong>.
                 </p>
-                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-300 flex items-center justify-between">
-                  <span>For instant testing without email delay:</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUserOtpInput(generatedOtp);
-                      setOtpError('');
-                      showToast({ title: 'Code Filled!', message: `Test code ${generatedOtp} inserted.`, type: 'info' });
-                    }}
-                    className="px-2.5 py-1 rounded-lg bg-[#2FA137] hover:bg-[#26892c] text-white font-extrabold text-[10px] transition-all"
-                  >
-                    Auto-Fill Test Code ({generatedOtp})
-                  </button>
-                </div>
                 <p className="text-[10px] text-slate-400 pt-1">Code expires in 15 minutes • Check your inbox or spam folder</p>
               </div>
             </div>

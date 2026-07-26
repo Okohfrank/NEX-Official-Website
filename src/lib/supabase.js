@@ -127,14 +127,42 @@ export const registerUserWithSupabase = async (formData) => {
 /**
  * Confirm User Profile in Supabase DB
  */
-export const confirmUserInSupabase = async (profileData) => {
+export const confirmUserInSupabase = async (profileData, userOtpInput) => {
   if (!supabase) return { success: true };
+
+  const emailLower = (profileData.email || '').trim().toLowerCase();
+
+  // If userOtpInput provided, attempt Supabase Auth verifyOtp
+  if (userOtpInput) {
+    try {
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: emailLower,
+        token: userOtpInput.trim(),
+        type: 'signup'
+      });
+
+      if (verifyError) {
+        const { error: verifyError2 } = await supabase.auth.verifyOtp({
+          email: emailLower,
+          token: userOtpInput.trim(),
+          type: 'email'
+        });
+
+        if (verifyError2 && !verifyError2.message.includes('already confirmed')) {
+          console.warn('Supabase verifyOtp notice:', verifyError2.message);
+        }
+      }
+    } catch (e) {
+      console.warn('verifyOtp notice:', e);
+    }
+  }
+
   try {
     const { data, error } = await supabase.from('profiles').insert([{
-      email: profileData.email,
-      name: profileData.name,
+      email: emailLower,
+      name: profileData.fullName || profileData.name,
       matric_number: profileData.matricNumber,
-      faculty_dept: profileData.dept,
+      faculty_dept: profileData.department || profileData.dept,
       level: profileData.level,
       knowledge_area: profileData.knowledgeArea,
       skills: profileData.skills,
@@ -142,7 +170,9 @@ export const confirmUserInSupabase = async (profileData) => {
       role: 'unplaced_member',
       points: 100
     }]);
-    if (error) console.warn('Supabase DB insert warning:', error.message);
+    if (error && !error.message.includes('duplicate key')) {
+      console.warn('Supabase DB insert notice:', error.message);
+    }
     return { success: true, data };
   } catch (err) {
     return { success: true };
