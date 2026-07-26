@@ -108,9 +108,6 @@ export const AuthModal = ({ isOpen, onClose }) => {
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold text-center tracking-widest text-base outline-none focus:ring-2 focus:ring-[#2FA137] shadow-xs"
                   />
                 </div>
-                <p className="text-[11px] text-center text-[#2FA137] font-bold mt-1.5 bg-emerald-50 py-1 px-3 rounded-lg border border-emerald-200/60 max-w-xs mx-auto">
-                  Passcode: <span className="font-extrabold underline">NEX-2026</span> (or enter any code)
-                </p>
               </div>
 
               <button

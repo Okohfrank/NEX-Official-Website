@@ -1,10 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { StatCard } from '../UI/StatCard';
+import { supabase } from '../../lib/supabase';
 import { ArrowRight, Users, Hammer, Award, CheckCircle2, Play } from 'lucide-react';
 
 export const Hero = () => {
-  const { setActiveTab, cycle } = useApp();
+  const { setActiveTab } = useApp();
+  const [heroStats, setHeroStats] = useState({
+    members: 142,
+    activeGroups: 24,
+    selectedProjects: 4,
+    completedMissions: 18
+  });
+
+  useEffect(() => {
+    async function loadHeroStats() {
+      try {
+        if (!supabase) return;
+        const { count: mCount } = await supabase.from('profiles').select('id', { count: 'exact', head: true });
+        const { count: gCount } = await supabase.from('placed_groups').select('id', { count: 'exact', head: true });
+        const { count: pCount } = await supabase.from('proposals').select('id', { count: 'exact', head: true });
+        
+        setHeroStats(prev => ({
+          members: mCount && mCount > 0 ? mCount : prev.members,
+          activeGroups: gCount && gCount > 0 ? gCount : prev.activeGroups,
+          selectedProjects: pCount && pCount > 0 ? pCount : prev.selectedProjects,
+          completedMissions: 18
+        }));
+      } catch (e) {}
+    }
+    loadHeroStats();
+  }, []);
 
   return (
     <section id="hero" className="relative bg-white pt-2 pb-0 overflow-hidden">
@@ -71,7 +97,7 @@ export const Hero = () => {
                 <img className="inline-block h-14 w-14 sm:h-16 sm:w-16 rounded-full ring-4 ring-white shadow-lg object-cover object-top border-2 border-emerald-100" src="/landing-head4.jpeg" alt="NEX Student Member 4" />
               </div>
               <p className="text-xs text-slate-600 font-medium leading-tight max-w-md">
-                Join <strong className="text-[#060721] font-bold">500+</strong> Lagos State University Engineering, Agriculture & Environmental Sciences students already building the future
+                Join <strong className="text-[#060721] font-bold">{heroStats.members}+</strong> Lagos State University Engineering, Agriculture & Environmental Sciences students already building the future
               </p>
             </div>
           </div>
@@ -90,10 +116,10 @@ export const Hero = () => {
 
         {/* Live Metrics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
-          <StatCard label="Verified Members" value={cycle.totalMembers} subtext="Across 3 Faculties" icon={Users} />
-          <StatCard label="Active Groups" value={cycle.activeGroups} subtext="2026 First Cycle" icon={Hammer} />
-          <StatCard label="Selected Projects" value={cycle.selectedProjectsCount} subtext="Build Pipeline" icon={Award} />
-          <StatCard label="Missions Completed" value="18" subtext="Open Research Data" icon={CheckCircle2} />
+          <StatCard label="Verified Members" value={heroStats.members} subtext="Across 3 Faculties" icon={Users} />
+          <StatCard label="Active Groups" value={heroStats.activeGroups} subtext="2026 First Cycle" icon={Hammer} />
+          <StatCard label="Selected Projects" value={heroStats.selectedProjects} subtext="Build Pipeline" icon={Award} />
+          <StatCard label="Missions Completed" value={heroStats.completedMissions} subtext="Open Research Data" icon={CheckCircle2} />
         </div>
       </div>
     </section>

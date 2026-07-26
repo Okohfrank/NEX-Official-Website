@@ -202,8 +202,11 @@ export const AppProvider = ({ children }) => {
     });
   };
 
-  // Helper logout action
-  const logout = () => {
+  // Helper logout action with Supabase Auth signOut
+  const logout = async () => {
+    try {
+      if (supabase) await supabase.auth.signOut();
+    } catch (e) {}
     setUserRole('public');
     setCurrentUser(MOCK_USER_PROFILES.publicGuest);
     setActiveTab('home');
