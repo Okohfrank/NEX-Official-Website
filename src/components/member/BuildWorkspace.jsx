@@ -14,24 +14,20 @@ import {
   Sparkles
 } from 'lucide-react';
 
+import { supabase } from '../../lib/supabase';
+
 export const BuildWorkspace = () => {
-  const { buildWorkspace, addBuildLog, setActiveTab, showToast } = useApp();
+  const { buildWorkspace, setBuildWorkspace, addBuildLog, setActiveTab, showToast } = useApp();
   const [logText, setLogText] = useState('');
   const [logSkill, setLogSkill] = useState('Mechanical Prototyping');
 
-  // Interactive Cost Item Addition
-  const [costItems, setCostItems] = useState([
-    { item: "High-Capacity Bio-Sand Media Columns", qty: 2, cost: 45000, total: 90000 },
-    { item: "DC Submersible 12V Solar Water Pump", qty: 1, cost: 35000, total: 35000 },
-    { item: "Iron Precipitator Chemical Dosing Unit", qty: 1, cost: 25000, total: 25000 },
-    { item: "Embedded Telemetry & Turbidity Sensors", qty: 1, cost: 20000, total: 20000 }
-  ]);
-
+  const costItems = buildWorkspace?.devPrep?.costAnalysis || [];
+  
   const [newItemName, setNewItemName] = useState('');
   const [newItemQty, setNewItemQty] = useState('1');
   const [newItemCost, setNewItemCost] = useState('5000');
 
-  const handleAddCostItem = (e) => {
+  const handleAddCostItem = async (e) => {
     e.preventDefault();
     if (!newItemName) return;
 
@@ -39,7 +35,18 @@ export const BuildWorkspace = () => {
     const cost = parseInt(newItemCost) || 0;
     const total = qty * cost;
 
-    setCostItems(prev => [...prev, { item: newItemName, qty, cost, total }]);
+    const newItem = { group_id: buildWorkspace.groupId, item: newItemName, qty, cost, total };
+    try {
+      await supabase.from('build_costs').insert([newItem]);
+      setBuildWorkspace(prev => ({
+        ...prev,
+        devPrep: {
+          ...prev.devPrep,
+          costAnalysis: [...prev.devPrep.costAnalysis, newItem]
+        }
+      }));
+    } catch (err) {}
+
     setNewItemName('');
     setNewItemQty('1');
     setNewItemCost('5000');
@@ -63,16 +70,9 @@ export const BuildWorkspace = () => {
     });
   };
 
-  const riskList = buildWorkspace?.devPrep?.riskAnalysis || [
-    { risk: "Media Clogging from Turbidity", mitigation: "Pre-filter mesh screen & backwash valve", status: "Mitigated" },
-    { risk: "Solar Power Intermittent Voltage", mitigation: "Integrated 12V LiFePO4 Buffer Battery", status: "Validated" },
-    { risk: "Chemical Dosing Over-Saturation", mitigation: "Automated pH feedback loop sensor", status: "In Progress" }
-  ];
+  const riskList = buildWorkspace?.devPrep?.safetyRisk || [];
 
-  const logsList = buildWorkspace?.buildLogs || buildWorkspace?.logs || [
-    { id: 1, author: "David Olanrewaju", time: "10m ago", text: "Completed 3D CAD housing assembly for bio-sand column and pressure tested fittings.", skillTag: "Mechanical Prototyping" },
-    { id: 2, author: "Nkechi Eze", time: "2h ago", text: "Calibrated turbidity sensor array and logged baseline water purity metrics.", skillTag: "IoT Sensor Calibration" }
-  ];
+  const logsList = buildWorkspace?.buildLogs || [];
 
   const totalCost = costItems.reduce((sum, item) => sum + (item.total || 0), 0);
 

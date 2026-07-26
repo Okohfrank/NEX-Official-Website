@@ -1,13 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   MOCK_USER_PROFILES,
-  CURRENT_CYCLE,
-  MOCK_RESEARCH_WORKSPACE,
-  MOCK_BUILD_WORKSPACE,
-  MOCK_LEADERBOARD,
-  MOCK_BOUNTIES,
-  MOCK_EVENTS,
-  EXECUTIVES_DATA
+  CURRENT_CYCLE
 } from '../data/mockData';
 import {
   fetchSupabaseBounties,
@@ -50,16 +44,22 @@ export const AppProvider = ({ children }) => {
 
   // Global state collections
   const [cycle, setCycle] = useState(CURRENT_CYCLE);
-  const [researchWorkspace, setResearchWorkspace] = useState(MOCK_RESEARCH_WORKSPACE);
-  const [buildWorkspace, setBuildWorkspace] = useState(MOCK_BUILD_WORKSPACE);
-  const [leaderboard, setLeaderboard] = useState(MOCK_LEADERBOARD);
+  const [researchWorkspace, setResearchWorkspace] = useState({
+    groupId: "grp-alpha", groupName: "Group Alpha - Clean Hydro Systems",
+    problemStatement: "", literatureReview: "", findingsSummary: "", constraints: "", researchLogs: []
+  });
+  const [buildWorkspace, setBuildWorkspace] = useState({
+    groupId: "grp-solar", groupName: "High-Efficiency Biogas Digester Kiosk",
+    devPrep: { litReview: "", costAnalysis: [], safetyRisk: [] }, buildLogs: []
+  });
+  const [leaderboard, setLeaderboard] = useState([]);
   
   const [bounties, setBounties] = useState(() => {
     const saved = localStorage.getItem('nex_bounties');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
-    return MOCK_BOUNTIES;
+    return [];
   });
 
   const [events, setEvents] = useState(() => {
@@ -67,7 +67,7 @@ export const AppProvider = ({ children }) => {
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
-    return MOCK_EVENTS;
+    return [];
   });
 
   const [executives, setExecutives] = useState(() => {
@@ -75,7 +75,7 @@ export const AppProvider = ({ children }) => {
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
-    return EXECUTIVES_DATA;
+    return [];
   });
 
   const [certificates, setCertificates] = useState(() => {
@@ -83,21 +83,73 @@ export const AppProvider = ({ children }) => {
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
-    return [
-      { id: 'cert-1', recipient: 'Oyewole Samod Atanda', title: '2026 First Cycle Orientation & Research Ethics Workshop', type: 'Workshop Certificate', date: 'Jul 2026', code: 'NEX-CERT-2026-001' },
-      { id: 'cert-2', recipient: 'George Ikechukwu', title: 'Interdisciplinary Problem Definition & Scope Matrix', type: 'Research Certificate', date: 'Jul 2026', code: 'NEX-CERT-2026-002' }
-    ];
+    return [];
   });
 
-  const [topicChangeRequests, setTopicChangeRequests] = useState([
-    { id: 'tcr-1', groupName: 'Group Alpha - Clean Hydro Systems', currentTopic: 'Solar Water Kiosk with Bio-Sand Filtration', proposedTopic: 'Decentralized Micro-Filtration Kiosk for Campus Dorms', reason: 'Refined scope after campus water quality lab testing showed higher turbidity in hostel supply.', status: 'Pending Review' }
-  ]);
+  const [topicChangeRequests, setTopicChangeRequests] = useState([]);
 
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: "Group placement completed for 2026 First Cycle", time: "10m ago", read: false },
-    { id: 2, text: "New Research Log entry by Nkechi Eze", time: "2h ago", read: false },
-    { id: 3, text: "Proposal Review Gate is now OPEN", time: "1d ago", read: true }
-  ]);
+  const [notifications, setNotifications] = useState([]);
+
+  // Supabase Hydration Effect
+  useEffect(() => {
+    const hydrateData = async () => {
+      try {
+        const { data: bData } = await supabase.from('bounties').select('*').order('created_at', { ascending: false });
+        if (bData) setBounties(bData);
+
+        const { data: eData } = await supabase.from('events').select('*').order('created_at', { ascending: false });
+        if (eData) setEvents(eData);
+
+        const { data: execData } = await supabase.from('executives').select('*').order('exec_order', { ascending: true });
+        if (execData) setExecutives(execData);
+
+        const { data: certData } = await supabase.from('certificates').select('*').order('created_at', { ascending: false });
+        if (certData) setCertificates(certData);
+
+        const { data: lData } = await supabase.from('profiles').select('*').order('points', { ascending: false });
+        if (lData) {
+          const rankedLeaderboard = lData.map((item, index) => ({ ...item, rank: index + 1 }));
+          setLeaderboard(rankedLeaderboard);
+        }
+
+        // Hydrate Workspaces
+        const { data: wData } = await supabase.from('workspaces').select('*').limit(2);
+        if (wData && wData.length > 0) {
+           const rw = wData.find(w => w.group_id === 'grp-alpha') || wData[0];
+           const bw = wData.find(w => w.group_id === 'grp-solar') || wData[1] || wData[0];
+           
+           const { data: rLogs } = await supabase.from('workspace_logs').select('*').eq('group_id', rw.group_id).order('created_at', { ascending: false });
+           const { data: bLogs } = await supabase.from('workspace_logs').select('*').eq('group_id', bw.group_id).order('created_at', { ascending: false });
+           const { data: bCosts } = await supabase.from('build_costs').select('*').eq('group_id', bw.group_id);
+           const { data: bRisks } = await supabase.from('build_risks').select('*').eq('group_id', bw.group_id);
+
+           setResearchWorkspace({
+             groupId: rw.group_id,
+             groupName: rw.group_name || 'Group Alpha',
+             problemStatement: rw.problem_statement || '',
+             literatureReview: rw.literature_review || '',
+             findingsSummary: rw.findings_summary || '',
+             constraints: rw.constraints || '',
+             researchLogs: (rLogs || []).map(l => ({ id: l.id, author: l.author, text: l.text, tag: l.tag, time: "Recently" }))
+           });
+
+           setBuildWorkspace({
+             groupId: bw.group_id,
+             groupName: bw.group_name || 'Selected Project',
+             devPrep: {
+               litReview: bw.build_lit_review || '',
+               costAnalysis: bCosts || [],
+               safetyRisk: bRisks || []
+             },
+             buildLogs: (bLogs || []).map(l => ({ id: l.id, author: l.author, text: l.text, skill: l.tag, time: "Recently" }))
+           });
+        }
+      } catch (err) {
+        console.error('Data hydration error', err);
+      }
+    };
+    hydrateData();
+  }, []);
 
   const [toasts, setToasts] = useState([]);
 
@@ -221,9 +273,9 @@ export const AppProvider = ({ children }) => {
     setUserRole('public');
     setCurrentUser(MOCK_USER_PROFILES.publicGuest);
     setActiveTab('home');
-    setBounties(MOCK_BOUNTIES);
-    setEvents(MOCK_EVENTS);
-    setExecutives(EXECUTIVES_DATA);
+    setBounties([]);
+    setEvents([]);
+    setExecutives([]);
     setUserUpvotedBounties([]);
     showToast({
       title: 'Session Storage Reset',
@@ -281,32 +333,42 @@ export const AppProvider = ({ children }) => {
   };
 
   // User Actions
-  const addResearchLog = (text, tag) => {
+  const addResearchLog = async (text, tag) => {
     const newLog = {
-      id: Date.now(),
       author: currentUser.name,
-      time: "Just now",
       text,
-      tag: tag || "Update"
+      tag: tag || "Update",
+      group_id: researchWorkspace.groupId,
+      type: 'research'
     };
-    setResearchWorkspace(prev => ({
-      ...prev,
-      researchLogs: [newLog, ...prev.researchLogs]
-    }));
+    try {
+      const { data } = await supabase.from('workspace_logs').insert([newLog]).select();
+      if (data && data[0]) {
+        setResearchWorkspace(prev => ({
+          ...prev,
+          researchLogs: [{ id: data[0].id, author: data[0].author, text: data[0].text, tag: data[0].tag, time: "Just now" }, ...prev.researchLogs]
+        }));
+      }
+    } catch (e) {}
   };
 
-  const addBuildLog = (text, skill) => {
+  const addBuildLog = async (text, skill) => {
     const newLog = {
-      id: Date.now(),
       author: currentUser.name,
-      time: "Just now",
       text,
-      skill: skill || "Prototyping"
+      tag: skill || "Prototyping",
+      group_id: buildWorkspace.groupId,
+      type: 'build'
     };
-    setBuildWorkspace(prev => ({
-      ...prev,
-      buildLogs: [newLog, ...prev.buildLogs]
-    }));
+    try {
+      const { data } = await supabase.from('workspace_logs').insert([newLog]).select();
+      if (data && data[0]) {
+        setBuildWorkspace(prev => ({
+          ...prev,
+          buildLogs: [{ id: data[0].id, author: data[0].author, text: data[0].text, skill: data[0].tag, time: "Just now" }, ...prev.buildLogs]
+        }));
+      }
+    } catch (e) {}
   };
 
   const upvoteBounty = (id) => {

@@ -14,6 +14,7 @@ export const LoginView = () => {
   const [execPasscode, setExecPasscode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isExecVerified, setIsExecVerified] = useState(false);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -59,7 +60,10 @@ export const LoginView = () => {
       const finalDept = userProfile ? (userProfile.faculty_dept || userProfile.dept) : 'Faculty of Engineering';
       const finalLevel = userProfile ? userProfile.level : '300 Level';
       const finalPoints = userProfile ? (userProfile.points || 100) : 100;
-      const finalRole = userProfile ? (userProfile.role || 'unplaced_member') : ((cleanEmail.includes('admin') || cleanEmail.includes('exec')) ? 'exec_admin' : 'unplaced_member');
+      let finalRole = userProfile ? (userProfile.role || 'unplaced_member') : 'unplaced_member';
+      if (isExecVerified || cleanEmail.includes('admin') || cleanEmail.includes('exec')) {
+        finalRole = 'exec_admin';
+      }
 
       const authenticatedUser = {
         name: finalName,
@@ -108,21 +112,12 @@ export const LoginView = () => {
       return;
     }
 
-    // Authorized Executive Admin
-    changeRole('exec_admin');
-    setCurrentUser({
-      name: 'Exec Admin Council',
-      email: 'admin@lasu.edu.ng',
-      dept: 'Executive Governance & Administration',
-      level: 'Executive Level',
-      points: 500,
-      role: 'exec_admin'
-    });
-    setActiveTab('admin_overview');
+    setIsExecVerified(true);
+    setStep('login');
 
     showToast({
-      title: 'Executive Access Granted!',
-      message: 'Welcome to the Executive Administration Suite.',
+      title: 'Passcode Verified',
+      message: 'Executive Access unlocked. Please sign in with your own account to proceed.',
       type: 'success'
     });
   };

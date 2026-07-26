@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { supabase } from '../../lib/supabase';
 import { GlassCard } from '../UI/GlassCard';
 import { Badge } from '../UI/Badge';
 import {
@@ -19,11 +20,26 @@ export const ResearchWorkspace = () => {
   const [logText, setLogText] = useState('');
   const [logTag, setLogTag] = useState('Field Update');
 
-  const handleSave = (field, value) => {
+  const handleSave = async (field, value) => {
     setResearchWorkspace(prev => ({
       ...prev,
       [field]: value
     }));
+
+    try {
+      const dbFieldMap = {
+        problemStatement: 'problem_statement',
+        literatureReview: 'literature_review',
+        findingsSummary: 'findings_summary',
+        constraints: 'constraints'
+      };
+      const dbField = dbFieldMap[field];
+      if (dbField) {
+        const { error } = await supabase.from('workspaces')
+          .upsert({ group_id: researchWorkspace.groupId, [dbField]: value }, { onConflict: 'group_id' });
+        if (error) console.error('Save error:', error);
+      }
+    } catch (err) {}
   };
 
   const handleAddLogSubmit = (e) => {
