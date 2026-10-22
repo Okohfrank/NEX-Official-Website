@@ -215,10 +215,21 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('nex_certificates', JSON.stringify(certificates));
   }, [certificates]);
 
-  // Ensure clean white & brand theme on <html> element
+  // Dark Mode: Persistent theme preference
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('nex_darkMode') === 'true';
+  });
+
   useEffect(() => {
-    document.documentElement.classList.remove('dark');
-  }, []);
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('nex_darkMode', String(darkMode));
+  }, [darkMode]);
+
+  const toggleDarkMode = () => setDarkMode(prev => !prev);
 
   // Toast Action Helper
   const showToast = ({ title, message, type = 'success', duration = 4000 }) => {
@@ -261,7 +272,7 @@ export const AppProvider = ({ children }) => {
   // Update User Profile Action
   const updateUserProfile = (updatedFields) => {
     setCurrentUser(prev => {
-      const emailKey = (prev.email || 'default_user').toLowerCase();
+      const emailKey = (updatedFields.email || prev.email || 'default_user').toLowerCase();
       const newProfile = { ...prev, ...updatedFields };
 
       setUserProfilesStore(store => {
@@ -269,6 +280,12 @@ export const AppProvider = ({ children }) => {
         localStorage.setItem('nex_userProfilesStore', JSON.stringify(updatedStore));
         return updatedStore;
       });
+
+      try {
+        const regMap = JSON.parse(localStorage.getItem('nex_registered_accounts') || '{}');
+        regMap[emailKey] = newProfile;
+        localStorage.setItem('nex_registered_accounts', JSON.stringify(regMap));
+      } catch (e) {}
 
       localStorage.setItem('nex_currentUser', JSON.stringify(newProfile));
       return newProfile;
@@ -279,6 +296,77 @@ export const AppProvider = ({ children }) => {
       message: 'Your profile details and gallery photo are saved to your account and will persist across logouts.',
       type: 'success'
     });
+  };
+
+  // Explicit Register Account Action
+  const registerAccount = (profileData) => {
+    const cleanEmail = (profileData.email || '').trim().toLowerCase();
+    if (!cleanEmail) return;
+
+    setUserProfilesStore(store => {
+      const updatedStore = { ...store, [cleanEmail]: profileData };
+      localStorage.setItem('nex_userProfilesStore', JSON.stringify(updatedStore));
+      return updatedStore;
+    });
+
+    try {
+      const regMap = JSON.parse(localStorage.getItem('nex_registered_accounts') || '{}');
+      regMap[cleanEmail] = profileData;
+      localStorage.setItem('nex_registered_accounts', JSON.stringify(regMap));
+    } catch (e) {}
+
+    setCurrentUser(profileData);
+    localStorage.setItem('nex_currentUser', JSON.stringify(profileData));
+  };
+
+  // Check if an email is already registered before allowing login or password reset
+  const isEmailRegistered = async (email) => {
+    const cleanEmail = (email || '').trim().toLowerCase();
+    if (!cleanEmail) return { registered: false, profile: null };
+
+    // 1. Check local session state
+    if (userProfilesStore && userProfilesStore[cleanEmail]) {
+      return { registered: true, profile: userProfilesStore[cleanEmail] };
+    }
+
+    // 2. Check localStorage nex_userProfilesStore
+    try {
+      const savedStore = JSON.parse(localStorage.getItem('nex_userProfilesStore') || '{}');
+      if (savedStore && savedStore[cleanEmail]) {
+        return { registered: true, profile: savedStore[cleanEmail] };
+      }
+    } catch (e) {}
+
+    // 3. Check localStorage nex_registered_accounts
+    try {
+      const regMap = JSON.parse(localStorage.getItem('nex_registered_accounts') || '{}');
+      if (regMap && regMap[cleanEmail]) {
+        return { registered: true, profile: regMap[cleanEmail] };
+      }
+    } catch (e) {}
+
+    // 4. Check system administrative accounts
+    if (cleanEmail === 'admin@lasu.edu.ng' || cleanEmail === 'exec@nex.edu.ng') {
+      return { registered: true, profile: MOCK_USER_PROFILES.execAdmin };
+    }
+
+    // 5. Check Supabase profiles table
+    if (supabase) {
+      try {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('email', cleanEmail)
+          .maybeSingle();
+        if (profile && !error) {
+          return { registered: true, profile };
+        }
+      } catch (err) {
+        console.warn('Supabase profile query notice:', err);
+      }
+    }
+
+    return { registered: false, profile: null };
   };
 
   // Helper logout action with Supabase Auth signOut
@@ -619,6 +707,8 @@ export const AppProvider = ({ children }) => {
     currentUser,
     setCurrentUser,
     updateUserProfile,
+    registerAccount,
+    isEmailRegistered,
     activeTab,
     setActiveTab,
     cycle,
@@ -632,6 +722,8 @@ export const AppProvider = ({ children }) => {
     events,
     executives,
     setExecutives,
+    darkMode,
+    toggleDarkMode,
     certificates,
     topicChangeRequests,
     notifications,

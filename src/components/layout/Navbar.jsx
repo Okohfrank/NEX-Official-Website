@@ -23,7 +23,9 @@ import {
   ShieldAlert,
   UserCheck,
   Award,
-  Sparkles
+  Sparkles,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -36,7 +38,9 @@ export const Navbar = () => {
     logout,
     notifications,
     markAllNotificationsRead,
-    markNotificationRead
+    markNotificationRead,
+    darkMode,
+    toggleDarkMode
   } = useApp();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -142,7 +146,7 @@ export const Navbar = () => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-xs w-full transition-all">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-black/95 backdrop-blur-md border-b border-slate-200/60 dark:border-neutral-800 shadow-xs w-full transition-all">
       <div className="w-full px-4 sm:px-8 lg:px-16 h-20 flex items-center justify-between gap-3">
         {/* Brand Logo with 3-line text */}
         <div 
@@ -155,8 +159,8 @@ export const Navbar = () => {
             className="h-9 sm:h-10 w-auto object-contain" 
           />
           <div className="flex flex-col text-left text-[11px] font-black tracking-tight leading-[1.1]">
-            <span className="text-[#060721]">NETWORK OF</span>
-            <span className="text-[#060721]">ENGINEERING</span>
+            <span className="text-[#060721] dark:text-white">NETWORK OF</span>
+            <span className="text-[#060721] dark:text-white">ENGINEERING</span>
             <span className="text-[#2FA137] tracking-wider">XCELLENCE</span>
           </div>
         </div>
@@ -172,8 +176,8 @@ export const Navbar = () => {
                   onClick={() => handleLandingScroll(item.id)}
                   className={`px-3 py-2 rounded-full text-xs font-bold transition-all ${
                     isActive
-                      ? 'bg-emerald-50 text-[#2FA137] shadow-xs'
-                      : 'text-slate-700 hover:text-[#060721] hover:bg-slate-50'
+                      ? 'bg-emerald-50 dark:bg-emerald-950 text-[#2FA137] shadow-xs'
+                      : 'text-slate-700 dark:text-slate-300 hover:text-[#060721] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-neutral-800'
                   }`}
                 >
                   {item.label}
@@ -189,7 +193,7 @@ export const Navbar = () => {
             <div className="hidden sm:flex items-center gap-2">
               <button
                 onClick={() => setActiveTab('login')}
-                className="px-6 py-2 text-xs font-bold text-slate-800 border border-slate-300 hover:border-slate-400 hover:bg-slate-50 rounded-full transition-all shadow-xs"
+                className="px-6 py-2 text-xs font-bold text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-neutral-600 hover:border-slate-400 hover:bg-slate-50 dark:hover:bg-neutral-800 rounded-full transition-all shadow-xs"
               >
                 Login
               </button>
@@ -211,12 +215,12 @@ export const Navbar = () => {
                     setShowNotifications(!showNotifications);
                     setMobileMenuOpen(false);
                   }}
-                  className="p-2 sm:p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 transition-colors relative"
+                  className="p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200/80 dark:hover:bg-neutral-700 text-slate-700 dark:text-slate-200 transition-colors relative"
                   title="Admin Notifications & Updates"
                 >
-                  <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-[#060721]" />
+                  <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-[#060721] dark:text-white" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#2FA137] text-white text-[9px] font-black flex items-center justify-center ring-2 ring-white animate-pulse">
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#2FA137] text-white text-[9px] font-black flex items-center justify-center ring-2 ring-white dark:ring-neutral-900 animate-pulse">
                       {unreadCount}
                     </span>
                   )}
@@ -224,11 +228,11 @@ export const Navbar = () => {
 
                 {/* Notifications Dropdown Panel */}
                 {showNotifications && (
-                  <div className="absolute right-0 top-12 w-80 sm:w-96 bg-white rounded-3xl p-4 shadow-2xl border border-slate-200 z-50 animate-in fade-in slide-in-from-top-2 space-y-3">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <div className="absolute right-0 top-12 w-80 sm:w-96 bg-white dark:bg-neutral-900 rounded-3xl p-4 shadow-2xl border border-slate-200 dark:border-neutral-800 z-50 animate-in fade-in slide-in-from-top-2 space-y-3">
+                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-neutral-800 pb-2.5">
                       <div className="flex items-center gap-2">
                         <Bell className="w-4 h-4 text-[#2FA137]" />
-                        <h4 className="font-black text-xs text-[#060721]">Admin Broadcasts & Updates</h4>
+                        <h4 className="font-black text-xs text-[#060721] dark:text-white">Admin Broadcasts & Updates</h4>
                       </div>
                       {unreadCount > 0 && (
                         <button
@@ -243,7 +247,7 @@ export const Navbar = () => {
 
                     <div className="space-y-2 max-h-72 overflow-y-auto">
                       {(notifications || []).length === 0 ? (
-                        <p className="text-xs text-slate-500 font-medium text-center py-4">No recent updates.</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium text-center py-4">No recent updates.</p>
                       ) : (
                         notifications.map(n => (
                           <div
@@ -251,8 +255,8 @@ export const Navbar = () => {
                             onClick={() => markNotificationRead(n.id)}
                             className={`p-3 rounded-2xl border text-xs space-y-1 cursor-pointer transition-all ${
                               n.read 
-                                ? 'bg-slate-50 border-slate-200 text-slate-600' 
-                                : 'bg-emerald-50/80 border-emerald-200 text-[#060721] font-bold shadow-xs'
+                                ? 'bg-slate-50 dark:bg-neutral-800/60 border-slate-200 dark:border-neutral-700 text-slate-600 dark:text-slate-300' 
+                                : 'bg-emerald-50/80 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-[#060721] dark:text-white font-bold shadow-xs'
                             }`}
                           >
                             <div className="flex items-center justify-between">
@@ -271,7 +275,7 @@ export const Navbar = () => {
               {/* Logged-In User Profile Avatar Pill */}
               <div 
                 onClick={() => setActiveTab('profile')}
-                className="flex items-center gap-2 bg-slate-100 p-1.5 sm:px-3 sm:py-1.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-200/70 transition-colors"
+                className="flex items-center gap-2 bg-slate-100 dark:bg-neutral-800 p-1.5 sm:px-3 sm:py-1.5 rounded-xl border border-slate-200 dark:border-neutral-700 cursor-pointer hover:bg-slate-200/70 dark:hover:bg-neutral-700 transition-colors"
               >
                 {currentUser.photoUrl || currentUser.avatar ? (
                   <img
@@ -284,7 +288,7 @@ export const Navbar = () => {
                     {currentUser.name ? currentUser.name[0] : 'U'}
                   </div>
                 )}
-                <span className="text-xs font-bold text-slate-900 hidden sm:block">
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-100 hidden sm:block">
                   {currentUser.name}
                 </span>
               </div>
@@ -292,7 +296,7 @@ export const Navbar = () => {
               {/* Desktop Only Log Out Button */}
               <button
                 onClick={() => logout()}
-                className="hidden lg:flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-xl border border-red-200/60 transition-all"
+                className="hidden lg:flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-xl border border-red-200/60 dark:border-red-900/60 transition-all"
                 title="Log Out"
               >
                 <LogOut className="w-3.5 h-3.5" />
@@ -301,13 +305,22 @@ export const Navbar = () => {
             </div>
           )}
 
+          {/* Dark Mode Toggle */}
+          <button
+            onClick={toggleDarkMode}
+            className="p-2 sm:p-2.5 rounded-xl bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 text-slate-700 dark:text-slate-200 transition-colors"
+            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {darkMode ? <Sun className="w-4 h-4 sm:w-5 sm:h-5" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
+          </button>
+
           {/* Hamburger Menu Button for Mobile */}
           <button
             onClick={() => {
               setMobileMenuOpen(!mobileMenuOpen);
               setShowNotifications(false);
             }}
-            className="lg:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-colors"
+            className="lg:hidden p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -322,7 +335,7 @@ export const Navbar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="lg:hidden absolute top-full left-0 right-0 w-full bg-white border-b border-slate-200 px-4 pt-4 pb-6 space-y-4 shadow-2xl overflow-y-auto max-h-[85vh] z-50"
+            className="lg:hidden absolute top-full left-0 right-0 w-full bg-white dark:bg-black border-b border-slate-200 dark:border-neutral-800 px-4 pt-4 pb-6 space-y-4 shadow-2xl overflow-y-auto max-h-[85vh] z-50"
           >
             {/* Logged-In Mobile Navigation Menu */}
             {userRole !== 'public' ? (
@@ -330,7 +343,7 @@ export const Navbar = () => {
                 {/* User Info Header Tile */}
                 <div 
                   onClick={() => { setActiveTab('profile'); setMobileMenuOpen(false); }}
-                  className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-100 flex items-center gap-3 cursor-pointer"
+                  className="p-3 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900 flex items-center gap-3 cursor-pointer"
                 >
                   {currentUser.photoUrl || currentUser.avatar ? (
                     <img src={currentUser.photoUrl || currentUser.avatar} alt={currentUser.name} className="w-10 h-10 rounded-xl object-cover border border-[#2FA137]" />
@@ -340,7 +353,7 @@ export const Navbar = () => {
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-black text-[#060721] truncate">{currentUser.name || 'NEX Member'}</p>
+                    <p className="text-xs font-black text-[#060721] dark:text-white truncate">{currentUser.name || 'NEX Member'}</p>
                     <p className="text-[10px] text-[#2FA137] font-extrabold uppercase">{userRole.replace(/_/g, ' ')}</p>
                   </div>
                 </div>
@@ -357,7 +370,7 @@ export const Navbar = () => {
                           key={item.id}
                           onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }}
                           className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 transition-colors ${
-                            active ? 'bg-[#2FA137] text-white' : 'text-slate-700 hover:bg-slate-50'
+                            active ? 'bg-[#2FA137] text-white' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-neutral-800'
                           }`}
                         >
                           <Icon className="w-4 h-4" />
@@ -380,7 +393,7 @@ export const Navbar = () => {
                               key={item.id}
                               onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }}
                               className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 transition-colors ${
-                                active ? 'bg-[#2FA137] text-white shadow-xs' : 'text-slate-700 hover:bg-slate-50'
+                                active ? 'bg-[#2FA137] text-white shadow-xs' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-neutral-800'
                               }`}
                             >
                               <Icon className="w-4 h-4" />
@@ -395,7 +408,7 @@ export const Navbar = () => {
 
                 <button
                   onClick={() => { logout(); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-red-50 text-red-600 border border-red-200 text-xs font-bold mt-2"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/60 text-xs font-bold mt-2"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Log Out</span>
@@ -412,7 +425,7 @@ export const Navbar = () => {
                         key={item.id}
                         onClick={() => handleLandingScroll(item.id)}
                         className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-colors ${
-                          isActive ? 'bg-emerald-50 text-[#2FA137]' : 'text-slate-700 hover:bg-slate-50'
+                          isActive ? 'bg-emerald-50 dark:bg-emerald-950 text-[#2FA137]' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-neutral-800'
                         }`}
                       >
                         <span>{item.label}</span>
@@ -422,10 +435,10 @@ export const Navbar = () => {
                   })}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-neutral-800">
                   <button
                     onClick={() => { setActiveTab('login'); setMobileMenuOpen(false); }}
-                    className="py-2.5 px-4 rounded-full border border-slate-300 text-xs font-bold text-slate-800 text-center"
+                    className="py-2.5 px-4 rounded-full border border-slate-300 dark:border-neutral-700 text-xs font-bold text-slate-800 dark:text-slate-200 text-center hover:bg-slate-50 dark:hover:bg-neutral-800"
                   >
                     Login
                   </button>

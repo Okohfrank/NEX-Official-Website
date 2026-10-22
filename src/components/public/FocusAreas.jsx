@@ -7,16 +7,16 @@ export const FocusAreas = () => {
   const iconMap = { Droplets, Zap, Recycle, Sprout, Building2, Cpu };
 
   return (
-    <section id="focus-areas" className="py-12 sm:py-16 bg-white">
+    <section id="focus-areas" className="py-12 sm:py-16 bg-white dark:bg-black">
       <div className="w-full px-4 sm:px-8 lg:px-16 space-y-10">
         <div className="text-center mx-auto">
           <span className="text-xs font-bold uppercase tracking-wider text-[#2FA137]">
             PROBLEM DOMAINS
           </span>
-          <h2 className="text-3xl sm:text-4xl font-black text-[#060721] mt-1">
+          <h2 className="text-3xl sm:text-4xl font-black text-[#060721] dark:text-white mt-1">
             Six Focus Areas of Impact
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 mt-2">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-2">
             NEX directs multi-week semester Missions toward tangible societal challenges across these key engineering domains.
           </p>
         </div>
@@ -27,27 +27,27 @@ export const FocusAreas = () => {
             return (
               <div 
                 key={fa.id} 
-                className="group bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-[#2FA137]/40 transition-all duration-300 hover:-translate-y-1"
+                className="group bg-white dark:bg-neutral-900 rounded-2xl p-6 border border-slate-200/90 dark:border-neutral-800 shadow-sm hover:shadow-xl hover:border-[#2FA137]/40 transition-all duration-300 hover:-translate-y-1"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[#e6f6e8] text-[#2FA137] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                  <div className="w-12 h-12 rounded-2xl bg-[#e6f6e8] dark:bg-emerald-950/60 text-[#2FA137] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
                     <Icon className="w-6 h-6" />
                   </div>
                   <ArrowUpRight className="w-5 h-5 text-slate-400 group-hover:text-[#2FA137] transition-colors" />
                 </div>
 
-                <h3 className="text-xl font-bold text-[#060721] mb-2 group-hover:text-[#2FA137] transition-colors">
+                <h3 className="text-xl font-bold text-[#060721] dark:text-white mb-2 group-hover:text-[#2FA137] transition-colors">
                   {fa.title}
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                   {fa.description}
                 </p>
 
-                <div className="flex flex-wrap gap-1.5 pt-3 border-t border-slate-100">
+                <div className="flex flex-wrap gap-1.5 pt-3 border-t border-slate-100 dark:border-neutral-800">
                   {fa.subdomains.map((sub, i) => (
                     <span 
                       key={i} 
-                      className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/60"
+                      className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800"
                     >
                       {sub}
                     </span>

@@ -51,7 +51,7 @@ const KNOWLEDGE_AREAS = [
 ];
 
 export const RegisterView = () => {
-  const { setActiveTab, changeRole, updateUserProfile, showToast } = useApp();
+  const { setActiveTab, changeRole, updateUserProfile, registerAccount, showToast } = useApp();
   
   // Step state: 'form' | 'otp_verify' | 'completed'
   const [step, setStep] = useState('form');
@@ -212,7 +212,7 @@ export const RegisterView = () => {
 
       const newProfile = {
         name: formData.fullName,
-        email: formData.email,
+        email: formData.email.trim().toLowerCase(),
         dept: formData.department,
         level: formData.level,
         matricNumber: formData.matricNumber,
@@ -220,9 +220,11 @@ export const RegisterView = () => {
         knowledgeArea: formData.knowledgeArea,
         focusAreas: formData.focusAreas,
         role: 'unplaced_member',
-        points: 100
+        points: 100,
+        password: formData.password
       };
 
+      registerAccount(newProfile);
       updateUserProfile(newProfile);
       changeRole('unplaced_member', newProfile);
       setActiveTab('dashboard');
@@ -281,8 +283,8 @@ export const RegisterView = () => {
   );
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-10 px-4 bg-slate-50/50 animate-in fade-in">
-      <div className="w-full max-w-2xl bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200/90 space-y-6">
+    <div className="min-h-[85vh] flex items-center justify-center py-10 px-4 bg-slate-50/50 dark:bg-neutral-950 animate-in fade-in">
+      <div className="w-full max-w-2xl bg-white dark:bg-neutral-900 rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200/90 dark:border-neutral-800 space-y-6">
         {/* Header Branding */}
         <div className="text-center space-y-2">
           <div 
@@ -295,16 +297,16 @@ export const RegisterView = () => {
               className="h-10 w-auto object-contain" 
             />
             <div className="flex flex-col text-left text-[11px] font-black tracking-tight leading-[1.1]">
-              <span className="text-[#060721]">NETWORK OF</span>
-              <span className="text-[#060721]">ENGINEERING</span>
+              <span className="text-[#060721] dark:text-white">NETWORK OF</span>
+              <span className="text-[#060721] dark:text-white">ENGINEERING</span>
               <span className="text-[#2FA137] tracking-wider">XCELLENCE</span>
             </div>
           </div>
 
-          <h2 className="text-2xl font-black text-[#060721]">
+          <h2 className="text-2xl font-black text-[#060721] dark:text-white">
             {step === 'otp_verify' ? 'Email Security Verification' : step === 'completed' ? 'Account Verified!' : 'Create Member Account'}
           </h2>
-          <p className="text-xs text-slate-600 font-medium max-w-lg mx-auto">
+          <p className="text-xs text-slate-600 dark:text-slate-400 font-medium max-w-lg mx-auto">
             {step === 'otp_verify' 
               ? `Enter the 6-digit confirmation code delivered to ${formData.email}`
               : 'Join NEX to participate in interdisciplinary research, group matching, build modules, and publish solutions.'}
@@ -341,22 +343,22 @@ export const RegisterView = () => {
             </div>            {/* OTP & Link Verification Form */}
             <form onSubmit={handleVerifyOtp} className="space-y-4">
               {otpError && (
-                <div className="p-3 rounded-xl bg-red-50 text-red-700 border border-red-200 text-xs font-bold flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50 text-xs font-bold flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{otpError}</span>
                 </div>
               )}
 
-              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 space-y-2">
-                <p className="font-bold text-[#060721] text-xs">✉ How to Confirm Your Account:</p>
-                <ul className="text-[11px] text-slate-700 space-y-1 list-disc pl-4 font-medium">
+              <div className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/50 space-y-2">
+                <p className="font-bold text-[#060721] dark:text-white text-xs">✉ How to Confirm Your Account:</p>
+                <ul className="text-[11px] text-slate-700 dark:text-slate-300 space-y-1 list-disc pl-4 font-medium">
                   <li><strong>Method 1 (Instant Link):</strong> Open your email inbox and click <strong>"Confirm email address"</strong>. Then click the button below.</li>
                   <li><strong>Method 2 (6-Digit OTP):</strong> If you received a 6-digit code, enter it below to verify.</li>
                 </ul>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Enter 6-Digit Confirmation Code (Optional if Link Clicked) *</label>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-400 mb-1">Enter 6-Digit Confirmation Code (Optional if Link Clicked) *</label>
                 <div className="relative">
                   <KeyRound className="w-4 h-4 text-[#2FA137] absolute left-3.5 top-3" />
                   <input
@@ -368,7 +370,7 @@ export const RegisterView = () => {
                       setUserOtpInput(e.target.value.replace(/\D/g, ''));
                       setOtpError('');
                     }}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 bg-white text-[#060721] text-base font-black tracking-widest outline-none focus:ring-2 focus:ring-[#2FA137] font-mono"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[#060721] dark:text-slate-100 text-base font-black tracking-widest outline-none focus:ring-2 focus:ring-[#2FA137] font-mono"
                   />
                 </div>
               </div>
@@ -408,22 +410,22 @@ export const RegisterView = () => {
         ) : step === 'completed' ? (
           /* STEP 3: ACTIVATION COMPLETE */
           <div className="text-center py-8 space-y-4">
-            <div className="w-16 h-16 rounded-full bg-[#e6f6e8] text-[#2FA137] flex items-center justify-center mx-auto shadow-xs">
+            <div className="w-16 h-16 rounded-full bg-[#e6f6e8] dark:bg-emerald-950/50 text-[#2FA137] flex items-center justify-center mx-auto shadow-xs">
               <CheckCircle2 className="w-10 h-10 animate-bounce" />
             </div>
-            <h3 className="text-2xl font-black text-[#060721]">Account Verified & Activated!</h3>
-            <p className="text-xs text-slate-600 max-w-md mx-auto font-medium leading-relaxed">
-              Your profile has been saved to the database for <strong className="text-[#060721]">{formData.email}</strong>.<br />
+            <h3 className="text-2xl font-black text-[#060721] dark:text-white">Account Verified & Activated!</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md mx-auto font-medium leading-relaxed">
+              Your profile has been saved to the database for <strong className="text-[#060721] dark:text-white">{formData.email}</strong>.<br />
               You are now an active member in the <strong className="text-[#2FA137]">Unplaced Pool</strong> ready for group matching.
             </p>
 
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left text-xs space-y-1 max-w-md mx-auto">
-              <p className="font-extrabold text-[#060721]">Verified Profile Record:</p>
-              <p><span className="text-slate-500 font-medium">Full Name:</span> <span className="font-bold">{formData.fullName}</span></p>
-              <p><span className="text-slate-500 font-medium">Matric Number:</span> <span className="font-bold">{formData.matricNumber}</span></p>
-              <p><span className="text-slate-500 font-medium">Email:</span> <span className="font-bold">{formData.email}</span></p>
-              <p><span className="text-slate-500 font-medium">Department:</span> <span className="font-bold">{formData.department}</span></p>
-              <p><span className="text-slate-500 font-medium">Selected Focus Areas:</span> <span className="font-bold text-[#2FA137]">{formData.focusAreas.join(', ')}</span></p>
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-neutral-800/60 border border-slate-200 dark:border-neutral-700 text-left text-xs space-y-1 max-w-md mx-auto">
+              <p className="font-extrabold text-[#060721] dark:text-white">Verified Profile Record:</p>
+              <p><span className="text-slate-500 dark:text-slate-400 font-medium">Full Name:</span> <span className="font-bold text-slate-900 dark:text-slate-100">{formData.fullName}</span></p>
+              <p><span className="text-slate-500 dark:text-slate-400 font-medium">Matric Number:</span> <span className="font-bold text-slate-900 dark:text-slate-100">{formData.matricNumber}</span></p>
+              <p><span className="text-slate-500 dark:text-slate-400 font-medium">Email:</span> <span className="font-bold text-slate-900 dark:text-slate-100">{formData.email}</span></p>
+              <p><span className="text-slate-500 dark:text-slate-400 font-medium">Department:</span> <span className="font-bold text-slate-900 dark:text-slate-100">{formData.department}</span></p>
+              <p><span className="text-slate-500 dark:text-slate-400 font-medium">Selected Focus Areas:</span> <span className="font-bold text-[#2FA137]">{formData.focusAreas.join(', ')}</span></p>
             </div>
 
             <button

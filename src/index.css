@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 html, body, #root {
   max-width: 100vw;
@@ -26,6 +27,19 @@ html, body, #root {
     --ring: #16a34a;
     --radius: 0.75rem;
   }
+
+  .dark {
+    --background: #000000;
+    --foreground: #f1f5f9;
+    --card: #0a0a0a;
+    --card-foreground: #f1f5f9;
+    --popover: #0a0a0a;
+    --popover-foreground: #f1f5f9;
+    --muted: #1a1a1a;
+    --muted-foreground: #94a3b8;
+    --border: #262626;
+    --input: #1a1a1a;
+  }
 }
 
 body {
@@ -47,6 +61,13 @@ h1, h2, h3, h4, h5, h6, button, input, select, textarea {
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
 }
 
+.dark .glass-panel {
+  background: rgba(10, 10, 10, 0.98) !important;
+  border: 1px solid rgba(38, 38, 38, 0.9) !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+}
+
 /* Custom Minimal Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -61,4 +82,136 @@ h1, h2, h3, h4, h5, h6, button, input, select, textarea {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #404040;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #525252;
+}
+
+/* ========================================================
+   GLOBAL DARK MODE OVERRIDES (Applies to all pages & views)
+   ======================================================== */
+.dark body,
+.dark main,
+.dark #root,
+.dark .min-h-screen {
+  background-color: #000000 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Transform light surface cards and containers to deep dark */
+.dark .bg-white {
+  background-color: #0a0a0a !important;
+  color: #f1f5f9;
+}
+
+.dark .bg-slate-50,
+.dark .bg-slate-50\/50,
+.dark .bg-gray-50,
+.dark .bg-zinc-50 {
+  background-color: #050505 !important;
+  color: #f1f5f9;
+}
+
+.dark .bg-slate-100,
+.dark .bg-slate-100\/60,
+.dark .bg-slate-100\/70,
+.dark .bg-slate-100\/80,
+.dark .bg-slate-100\/90,
+.dark .bg-slate-200,
+.dark .bg-slate-200\/60,
+.dark .bg-slate-200\/70,
+.dark .bg-slate-200\/80 {
+  background-color: #141414 !important;
+  color: #f1f5f9;
+}
+
+/* Light text on dark backgrounds */
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-slate-700,
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-neutral-900,
+.dark .text-\[\#060721\] {
+  color: #ffffff !important;
+}
+
+.dark .text-slate-600,
+.dark .text-slate-500,
+.dark .text-gray-600,
+.dark .text-gray-500 {
+  color: #a1a1aa !important;
+}
+
+.dark .text-slate-400 {
+  color: #71717a !important;
+}
+
+/* Dark borders and dividers */
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-200\/60,
+.dark .border-slate-200\/80,
+.dark .border-slate-200\/90,
+.dark .border-slate-300,
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: #262626 !important;
+}
+
+/* Form inputs, select dropdowns, textareas across all member & admin forms */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+.dark textarea,
+.dark select {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border-color: #333333 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #666666 !important;
+}
+
+/* Tables and list rows */
+.dark tr:hover,
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-slate-200:hover {
+  background-color: #171717 !important;
+}
+
+/* Preserve bright green brand elements and badges */
+.dark .text-\[\#2FA137\],
+.dark .text-emerald-500,
+.dark .text-emerald-600 {
+  color: #38c843 !important;
+}
+
+.dark .bg-\[\#2FA137\],
+.dark .bg-emerald-600 {
+  background-color: #2FA137 !important;
+  color: #ffffff !important;
+}
+
+.dark .bg-emerald-50,
+.dark .bg-emerald-50\/60,
+.dark .bg-emerald-50\/70,
+.dark .bg-emerald-50\/80,
+.dark .bg-emerald-500\/10,
+.dark .bg-emerald-500\/20 {
+  background-color: rgba(47, 161, 55, 0.15) !important;
+  color: #38c843 !important;
+}
+
+.dark .border-emerald-100,
+.dark .border-emerald-200,
+.dark .border-emerald-300,
+.dark .border-emerald-500\/30 {
+  border-color: rgba(47, 161, 55, 0.3) !important;
 }

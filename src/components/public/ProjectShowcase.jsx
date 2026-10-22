@@ -17,7 +17,7 @@ export const ProjectShowcase = () => {
   });
 
   return (
-    <section id="featured-projects" className="pt-4 pb-12 sm:pt-6 sm:pb-16 bg-white">
+    <section id="featured-projects" className="pt-4 pb-12 sm:pt-6 sm:pb-16 bg-white dark:bg-black">
       <div className="w-full px-4 sm:px-8 lg:px-16 space-y-6 sm:space-y-8">
         <div className="space-y-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -25,10 +25,10 @@ export const ProjectShowcase = () => {
               <span className="text-xs font-bold uppercase tracking-wider text-[#2FA137]">
                 UPCOMING INTERDISCIPLINARY MISSIONS
               </span>
-              <h2 className="text-2xl sm:text-4xl font-black text-[#060721] mt-1">
+              <h2 className="text-2xl sm:text-4xl font-black text-[#060721] dark:text-white mt-1">
                 Featured Projects (Upcoming Missions)
               </h2>
-              <p className="text-xs sm:text-sm text-slate-600 mt-1">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
                 As NEX rolls out for the 2026 academic cycle, explore candidate missions undergoing problem definition and prototype planning.
               </p>
             </div>
@@ -41,19 +41,19 @@ export const ProjectShowcase = () => {
                 placeholder="Search upcoming projects..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 outline-none focus:ring-2 focus:ring-[#2FA137] w-full sm:w-64 shadow-xs"
+                className="pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#2FA137] w-full sm:w-64 shadow-xs"
               />
             </div>
           </div>
 
           {/* Horizontally Scrollable Focus Area Pill Selector for Mobile */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-slate-200/80">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-slate-200/80 dark:border-neutral-800">
             <button
               onClick={() => setSelectedFocus('All')}
               className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 selectedFocus === 'All'
                   ? 'bg-[#2FA137] text-white shadow-md shadow-emerald-600/20'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+                  : 'bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-neutral-700 border border-slate-200 dark:border-neutral-800'
               }`}
             >
               All Domains
@@ -65,7 +65,7 @@ export const ProjectShowcase = () => {
                 className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                   selectedFocus === fa.title
                     ? 'bg-[#2FA137] text-white shadow-md shadow-emerald-600/20'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+                    : 'bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-neutral-700 border border-slate-200 dark:border-neutral-800'
                 }`}
               >
                 {fa.title}
@@ -80,11 +80,11 @@ export const ProjectShowcase = () => {
             <GlassCard 
               key={proj.id} 
               onClick={() => setSelectedProject(proj)} 
-              className="flex flex-col justify-between group overflow-hidden p-0 bg-white border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-[#2FA137]/40 transition-all duration-300 hover:-translate-y-1"
+              className="flex flex-col justify-between group overflow-hidden p-0 bg-white dark:bg-neutral-900 border border-slate-200/90 dark:border-neutral-800 shadow-sm hover:shadow-xl hover:border-[#2FA137]/40 transition-all duration-300 hover:-translate-y-1"
             >
               <div className="space-y-4">
                 {/* Image Container with Hover Slide-In Focus Area Badge */}
-                <div className="relative rounded-t-2xl overflow-hidden h-44 sm:h-52 bg-slate-100">
+                <div className="relative rounded-t-2xl overflow-hidden h-44 sm:h-52 bg-slate-100 dark:bg-neutral-800">
                   <img
                     src={proj.image}
                     alt={proj.title}
@@ -102,25 +102,25 @@ export const ProjectShowcase = () => {
                 <div className="p-5 sm:p-6 pt-0 space-y-3">
                   <div>
                     <span className="text-[10px] text-[#2FA137] font-extrabold uppercase tracking-wider">{proj.cycle}</span>
-                    <h3 className="text-base sm:text-lg font-black text-[#060721] leading-snug mt-0.5 group-hover:text-[#2FA137] transition-colors">
+                    <h3 className="text-base sm:text-lg font-black text-[#060721] dark:text-white leading-snug mt-0.5 group-hover:text-[#2FA137] transition-colors">
                       {proj.title}
                     </h3>
                   </div>
 
-                  <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed font-medium">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed font-medium">
                     {proj.abstract}
                   </p>
 
-                  <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100 text-xs space-y-1">
+                  <div className="p-3 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/60 text-xs space-y-1">
                     <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-500 font-medium">Target Impact:</span>
-                      <span className="font-bold text-[#060721]">{proj.metrics.impact}</span>
+                      <span className="text-slate-500 dark:text-slate-400 font-medium">Target Impact:</span>
+                      <span className="font-bold text-[#060721] dark:text-white">{proj.metrics.impact}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0 flex items-center justify-between text-xs text-[#060721] font-bold group-hover:text-[#2FA137] transition-colors">
+              <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0 flex items-center justify-between text-xs text-[#060721] dark:text-white font-bold group-hover:text-[#2FA137] transition-colors">
                 <span>View Candidate Mission Overview</span>
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
@@ -136,11 +136,11 @@ export const ProjectShowcase = () => {
           >
             <div 
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-2xl bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 text-slate-900 max-h-[90vh] overflow-y-auto animate-in fade-in cursor-default"
+              className="relative w-full max-w-2xl bg-white dark:bg-neutral-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-slate-100 max-h-[90vh] overflow-y-auto animate-in fade-in cursor-default"
             >
               <button
                 onClick={() => setSelectedProject(null)}
-                className="absolute top-5 right-5 p-2.5 text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors z-20 shadow-xs"
+                className="absolute top-5 right-5 p-2.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 rounded-full transition-colors z-20 shadow-xs"
                 title="Close Modal"
               >
                 <X className="w-5 h-5" />
@@ -161,13 +161,13 @@ export const ProjectShowcase = () => {
 
                 <div>
                   <span className="text-xs text-[#2FA137] font-extrabold tracking-wider uppercase">{selectedProject.cycle}</span>
-                  <h2 className="text-xl sm:text-2xl font-black text-[#060721] mt-1">{selectedProject.title}</h2>
-                  <p className="text-xs text-slate-500 mt-1 font-medium">Designated Team: {selectedProject.teamName}</p>
+                  <h2 className="text-xl sm:text-2xl font-black text-[#060721] dark:text-white mt-1">{selectedProject.title}</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Designated Team: {selectedProject.teamName}</p>
                 </div>
 
                 <div>
                   <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-2">Project Overview</h4>
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
                     {selectedProject.abstract}
                   </p>
                 </div>

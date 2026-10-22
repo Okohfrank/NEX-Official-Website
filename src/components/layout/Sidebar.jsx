@@ -58,12 +58,12 @@ export const Sidebar = () => {
   ];
 
   return (
-    <aside className="hidden md:flex flex-col w-64 lg:w-72 shrink-0 bg-white border-r border-slate-200/90 p-5 space-y-6 min-h-[calc(100vh-4rem)]">
+    <aside className="hidden md:flex flex-col w-64 lg:w-72 shrink-0 bg-white dark:bg-black border-r border-slate-200/90 dark:border-neutral-800 p-5 space-y-6 min-h-[calc(100vh-4rem)]">
       <div className="flex-1 space-y-6">
         {isAdmin ? (
           /* Executive Admin Console Navigation ONLY */
           <div className="space-y-4">
-            <div className="p-3.5 rounded-2xl bg-[#060721] text-white space-y-1 border border-slate-800 shadow-md">
+            <div className="p-3.5 rounded-2xl bg-[#060721] dark:bg-neutral-900 text-white space-y-1 border border-slate-800 dark:border-neutral-700 shadow-md">
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#2FA137] flex items-center gap-1.5">
                 <ShieldAlert className="w-3.5 h-3.5" />
                 <span>ADMIN CONSOLE</span>
@@ -85,8 +85,8 @@ export const Sidebar = () => {
                       onClick={() => setActiveTab(item.id)}
                       className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                         active
-                          ? 'bg-[#060721] text-white shadow-md'
-                          : 'text-slate-700 hover:bg-slate-100/80 hover:text-[#060721]'
+                          ? 'bg-[#060721] dark:bg-neutral-800 text-white shadow-md'
+                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-neutral-800 hover:text-[#060721] dark:hover:text-white'
                       }`}
                     >
                       <Icon className="w-4 h-4 text-[#2FA137]" />
@@ -116,7 +116,7 @@ export const Sidebar = () => {
                       className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                         active
                           ? 'bg-[#2FA137] text-white shadow-md shadow-emerald-600/20'
-                          : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                          : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-neutral-800 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -143,7 +143,7 @@ export const Sidebar = () => {
                       className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                         active
                           ? 'bg-[#2FA137] text-white shadow-md shadow-emerald-600/20'
-                          : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                          : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-neutral-800 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -170,7 +170,7 @@ export const Sidebar = () => {
                       className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                         active
                           ? 'bg-[#2FA137] text-white shadow-md shadow-emerald-600/20'
-                          : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                          : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-neutral-800 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -185,7 +185,7 @@ export const Sidebar = () => {
       </div>
 
       {/* Sidebar Bottom Profile Tile & Log Out */}
-      <div className="pt-4 border-t border-slate-200/80 space-y-3 shrink-0">
+      <div className="pt-4 border-t border-slate-200/80 dark:border-neutral-800 space-y-3 shrink-0">
         <div className="flex items-center gap-2.5">
           {currentUser.photoUrl || currentUser.avatar ? (
             <img
@@ -199,14 +199,14 @@ export const Sidebar = () => {
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-black text-[#060721] truncate">{currentUser.name || (isAdmin ? 'Executive Admin' : 'Member')}</p>
-            <p className="text-[10px] text-slate-500 font-semibold truncate capitalize">{userRole.replace(/_/g, ' ')}</p>
+            <p className="text-xs font-black text-[#060721] dark:text-white truncate">{currentUser.name || (isAdmin ? 'Executive Admin' : 'Member')}</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold truncate capitalize">{userRole.replace(/_/g, ' ')}</p>
           </div>
         </div>
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200/60 transition-colors"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200/60 dark:border-red-900/60 transition-colors"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>Log Out</span>

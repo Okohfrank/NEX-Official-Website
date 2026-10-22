@@ -129,7 +129,7 @@ const AppContent = () => {
   ].includes(activeTab);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50/50 text-slate-900 selection:bg-emerald-600 selection:text-white pt-20">
+    <div className="min-h-screen flex flex-col bg-slate-50/50 dark:bg-black text-slate-900 dark:text-slate-100 selection:bg-emerald-600 selection:text-white pt-20">
       {/* Top Fixed Header */}
       <Navbar />
 

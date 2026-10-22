@@ -12,40 +12,40 @@ export const PublicationsArchive = () => {
   };
 
   return (
-    <section id="publications" className="pt-4 pb-12 sm:pt-6 sm:pb-16 bg-white">
+    <section id="publications" className="pt-4 pb-12 sm:pt-6 sm:pb-16 bg-white dark:bg-black">
       <div className="w-full px-4 sm:px-8 lg:px-16 space-y-8">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#e6f6e8] text-[#2FA137] text-xs font-bold border border-emerald-200/60">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#e6f6e8] dark:bg-emerald-950/60 text-[#2FA137] text-xs font-bold border border-emerald-200/60 dark:border-emerald-800">
             <Clock className="w-3.5 h-3.5 text-[#2FA137]" />
             <span>INCOMING PUBLICATIONS</span>
           </div>
 
-          <h2 className="text-2xl sm:text-4xl font-black text-[#060721] mt-1">
+          <h2 className="text-2xl sm:text-4xl font-black text-[#060721] dark:text-white mt-1">
             Publications & Annual Reports
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
             NEX's open-access research papers, technical blueprints, and annual societal impact reports will be published here upon completion of the 2026 First Cycle.
           </p>
         </div>
 
         {/* Incoming Banner */}
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/90 shadow-md text-center space-y-6">
-            <div className="w-16 h-16 rounded-2xl bg-[#e6f6e8] text-[#2FA137] font-bold flex items-center justify-center mx-auto shadow-xs">
+          <div className="bg-white dark:bg-neutral-900 rounded-3xl p-6 sm:p-10 border border-slate-200/90 dark:border-neutral-800 shadow-md text-center space-y-6">
+            <div className="w-16 h-16 rounded-2xl bg-[#e6f6e8] dark:bg-emerald-950/60 text-[#2FA137] font-bold flex items-center justify-center mx-auto shadow-xs">
               <FileText className="w-8 h-8" />
             </div>
 
             <div>
-              <h3 className="text-lg sm:text-xl font-black text-[#060721]">
+              <h3 className="text-lg sm:text-xl font-black text-[#060721] dark:text-white">
                 First Annual Report Release Scheduled for Q4 2026
               </h3>
-              <p className="text-xs text-slate-500 max-w-md mx-auto mt-1 font-medium">
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-1 font-medium">
                 Subscribe to receive immediate notification when our interdisciplinary research papers and open hardware blueprints are released.
               </p>
             </div>
 
             {subscribed ? (
-              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200/80 text-xs text-emerald-900 font-bold flex items-center justify-center gap-2">
+              <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800 text-xs text-emerald-900 dark:text-emerald-200 font-bold flex items-center justify-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#2FA137]" />
                 <span>Subscribed! You will be notified on official PDF publication releases.</span>
               </div>
@@ -57,7 +57,7 @@ export const PublicationsArchive = () => {
                   placeholder="Enter your corporate or student email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="flex-1 px-4 py-3 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 outline-none focus:ring-2 focus:ring-[#2FA137] shadow-xs"
+                  className="flex-1 px-4 py-3 rounded-xl border border-slate-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-[#2FA137] shadow-xs"
                 />
                 <button
                   type="submit"

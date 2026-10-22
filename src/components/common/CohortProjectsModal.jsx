@@ -64,7 +64,7 @@ export const CohortProjectsModal = ({ isOpen, onClose }) => {
       onClick={onClose}
     >
       <div 
-        className="relative w-full max-w-5xl max-h-[92vh] flex flex-col bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden"
+        className="relative w-full max-w-5xl max-h-[92vh] flex flex-col bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-neutral-800 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Banner */}
@@ -132,10 +132,10 @@ export const CohortProjectsModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Projects Grid Container */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/60">
-          <div className="flex items-center justify-between text-xs text-slate-500 font-bold px-1">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/60 dark:bg-black/40">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-bold px-1">
             <span>Showing {filteredProjects.length} Cohort Submission{filteredProjects.length === 1 ? '' : 's'}</span>
-            <span className="flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+            <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#2FA137]" />
               Verified Submissions
             </span>
@@ -149,7 +149,7 @@ export const CohortProjectsModal = ({ isOpen, onClose }) => {
               return (
                 <div 
                   key={proj.id}
-                  className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:shadow-lg hover:border-[#2FA137]/40 transition-all flex flex-col justify-between space-y-4"
+                  className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-slate-200 dark:border-neutral-800 shadow-xs hover:shadow-lg hover:border-[#2FA137]/40 transition-all flex flex-col justify-between space-y-4"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-2">
@@ -161,16 +161,16 @@ export const CohortProjectsModal = ({ isOpen, onClose }) => {
                       </span>
                     </div>
 
-                    <h3 className="font-black text-base sm:text-lg text-[#060721] leading-snug">
+                    <h3 className="font-black text-base sm:text-lg text-[#060721] dark:text-white leading-snug">
                       {proj.title}
                     </h3>
 
-                    <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed font-normal">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed font-normal">
                       {proj.description}
                     </p>
 
                     {/* Deliverables */}
-                    <div className="pt-2 border-t border-slate-100 space-y-2">
+                    <div className="pt-2 border-t border-slate-100 dark:border-neutral-800 space-y-2">
                       <button
                         onClick={() => setExpandedId(isExpanded ? null : proj.id)}
                         className="w-full flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider hover:text-[#2FA137] transition-colors"
@@ -188,12 +188,12 @@ export const CohortProjectsModal = ({ isOpen, onClose }) => {
                               download={deliv.file}
                               target="_blank"
                               rel="noreferrer"
-                              className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-[#2FA137]/40 hover:bg-emerald-50/40 transition-all group"
+                              className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 hover:border-[#2FA137]/40 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/40 transition-all group"
                             >
                               <div className="flex items-center gap-2.5 min-w-0">
                                 {getFileIcon(deliv.file)}
                                 <div className="min-w-0">
-                                  <p className="text-xs font-bold text-[#060721] truncate">{deliv.name}</p>
+                                  <p className="text-xs font-bold text-[#060721] dark:text-white truncate">{deliv.name}</p>
                                   <p className="text-[10px] text-slate-400 font-medium">{getFileTypeLabel(deliv.file)}</p>
                                 </div>
                               </div>
@@ -206,7 +206,7 @@ export const CohortProjectsModal = ({ isOpen, onClose }) => {
                       {!isExpanded && (
                         <div className="flex flex-wrap gap-1.5">
                           {proj.deliverables.map((deliv, idx) => (
-                            <span key={idx} className="inline-flex items-center gap-1 text-[11px] text-slate-700 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">
+                            <span key={idx} className="inline-flex items-center gap-1 text-[11px] text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 px-2 py-0.5 rounded-md">
                               {getFileIcon(deliv.file)}
                               <span className="truncate max-w-[120px] font-medium">{deliv.name}</span>
                             </span>
@@ -217,7 +217,7 @@ export const CohortProjectsModal = ({ isOpen, onClose }) => {
                   </div>
 
                   {/* Footer Action */}
-                  <div className="pt-3 border-t border-slate-100">
+                  <div className="pt-3 border-t border-slate-100 dark:border-neutral-800">
                     <button
                       onClick={() => setExpandedId(isExpanded ? null : proj.id)}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#2FA137] hover:bg-[#26892c] text-white text-xs font-bold transition-transform active:scale-95 shadow-sm"
@@ -233,8 +233,8 @@ export const CohortProjectsModal = ({ isOpen, onClose }) => {
 
           {filteredProjects.length === 0 && (
             <div className="text-center py-12 space-y-2">
-              <FolderGit2 className="w-10 h-10 text-slate-300 mx-auto" />
-              <p className="text-sm font-bold text-slate-700">No project submissions match your filter.</p>
+              <FolderGit2 className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto" />
+              <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No project submissions match your filter.</p>
               <button 
                 onClick={() => { setSearchQuery(''); setSelectedDomain('All'); }}
                 className="text-xs font-bold text-[#2FA137] hover:underline"
@@ -246,11 +246,11 @@ export const CohortProjectsModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 bg-white border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-medium">
+        <div className="p-4 bg-white dark:bg-neutral-900 border-t border-slate-200 dark:border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400 font-medium">
           <p>Projects validated and submitted under NEX Cohort 1 Research & Build Cycle.</p>
           <button
             onClick={onClose}
-            className="px-6 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold transition-colors w-full sm:w-auto"
+            className="px-6 py-2 rounded-xl bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 text-slate-800 dark:text-slate-200 font-bold transition-colors w-full sm:w-auto"
           >
             Close
           </button>

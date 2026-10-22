@@ -52,7 +52,7 @@ export const MobileWorkspaceBar = () => {
   const items = getWorkspaceItems();
 
   return (
-    <div className="md:hidden w-full overflow-x-auto pb-2 border-b border-slate-200 scrollbar-none mb-4">
+    <div className="md:hidden w-full overflow-x-auto pb-2 border-b border-slate-200 dark:border-neutral-800 scrollbar-none mb-4">
       <div className="flex items-center gap-2 shrink-0 px-1">
         {items.map(item => {
           const Icon = item.icon;
@@ -63,8 +63,8 @@ export const MobileWorkspaceBar = () => {
               onClick={() => setActiveTab(item.id)}
               className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all active:scale-95 ${
                 active
-                  ? 'bg-[#060721] text-white border-transparent shadow-md font-extrabold'
-                  : 'bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-200'
+                  ? 'bg-[#060721] dark:bg-neutral-800 text-white border-transparent shadow-md font-extrabold'
+                  : 'bg-slate-100 dark:bg-neutral-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-neutral-700 hover:bg-slate-200 dark:hover:bg-neutral-800'
               }`}
             >
               <Icon className="w-3.5 h-3.5 text-[#2FA137]" />

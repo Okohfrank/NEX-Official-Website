@@ -46,21 +46,36 @@ export const ExecGrid = () => {
   const { executives } = useApp();
   const [selectedExec, setSelectedExec] = useState(null);
 
+  const REMOVED_MEMBERS = [
+    'chukwuebuka emmanuel oguebuana',
+    'oke habeeb oluwatobiloba',
+    'paul glory ojima',
+    'mutmainnah giwa oyindamola'
+  ];
+
   const sortedExecs = [...executives]
     .filter(exec => exec && exec.name && !exec.name.includes('[DEPRECATED]') && ((exec.order ?? exec.exec_order) > 0))
+    .filter(exec => !REMOVED_MEMBERS.includes(exec.name.trim().toLowerCase()))
+    .map(exec => {
+      // Ensure Samuel's role is updated even if Supabase has old title
+      if (exec.name === 'Godonu Samuel' && exec.role?.startsWith('Asst.')) {
+        return { ...exec, role: 'Media & Communication Lead', bio: exec.bio?.replace('Asst. Media and Comms Lead', 'Media and Communications Lead') };
+      }
+      return exec;
+    })
     .sort((a, b) => ((a.order ?? a.exec_order ?? 0) - (b.order ?? b.exec_order ?? 0)));
 
   return (
-    <section id="leadership" className="py-12 sm:py-16 bg-white">
+    <section id="leadership" className="py-12 sm:py-16 bg-white dark:bg-black">
       <div className="w-full px-4 sm:px-8 lg:px-16 space-y-8 sm:space-y-10">
         <div className="text-center mx-auto space-y-2">
           <span className="text-xs font-bold uppercase tracking-wider text-[#2FA137]">
             GOVERNANCE & LEADERSHIP
           </span>
-          <h2 className="text-2xl sm:text-4xl font-black text-[#060721] mt-1">
+          <h2 className="text-2xl sm:text-4xl font-black text-[#060721] dark:text-white mt-1">
             NEX Executive Council
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 mt-2 max-w-2xl mx-auto">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-2 max-w-2xl mx-auto">
             Led by an executive council driving research rigor, digital innovation, and interdisciplinary collaboration across Lagos State University.
           </p>
         </div>
@@ -71,10 +86,10 @@ export const ExecGrid = () => {
             <GlassCard
               key={exec.id || `exec-${index}`}
               onClick={() => setSelectedExec(exec)}
-              className="flex flex-col justify-between group overflow-hidden p-0 bg-white border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-[#2FA137]/40 transition-all duration-300 hover:-translate-y-1"
+              className="flex flex-col justify-between group overflow-hidden p-0 bg-white dark:bg-neutral-900 border border-slate-200/90 dark:border-neutral-800 shadow-sm hover:shadow-xl hover:border-[#2FA137]/40 transition-all duration-300 hover:-translate-y-1"
             >
               {/* Picture Frame Container */}
-              <div className="relative h-72 sm:h-80 w-full overflow-hidden bg-slate-100 border-b border-slate-200">
+              <div className="relative h-72 sm:h-80 w-full overflow-hidden bg-slate-100 dark:bg-neutral-800 border-b border-slate-200 dark:border-neutral-800">
                 <img
                   src={exec.photo}
                   alt={exec.name}
@@ -127,15 +142,15 @@ export const ExecGrid = () => {
                   <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#2FA137]">
                     {exec.role}
                   </span>
-                  <h3 className="text-base sm:text-lg font-black text-[#060721] mt-0.5 leading-snug group-hover:text-[#2FA137] transition-colors">
+                  <h3 className="text-base sm:text-lg font-black text-[#060721] dark:text-white mt-0.5 leading-snug group-hover:text-[#2FA137] transition-colors">
                     {exec.name}
                   </h3>
-                  <p className="text-xs text-slate-500 font-semibold mt-0.5">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
                     {exec.dept}
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                <div className="pt-2 border-t border-slate-100 dark:border-neutral-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                   <span className="font-bold text-[11px] text-[#2FA137]">Read Profile</span>
                   <span>&rarr;</span>
                 </div>
@@ -152,11 +167,11 @@ export const ExecGrid = () => {
           >
             <div 
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 text-slate-900 my-auto animate-in fade-in cursor-default"
+              className="relative w-full max-w-lg bg-white dark:bg-neutral-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-neutral-700 text-slate-900 dark:text-slate-100 my-auto animate-in fade-in cursor-default"
             >
               <button
                 onClick={() => setSelectedExec(null)}
-                className="absolute top-5 right-5 p-2.5 text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors z-20 shadow-xs"
+                className="absolute top-5 right-5 p-2.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 rounded-full transition-colors z-20 shadow-xs"
                 title="Close Modal"
               >
                 <X className="w-5 h-5" />
@@ -174,8 +189,8 @@ export const ExecGrid = () => {
                     <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#2FA137]">
                       #{selectedExec.order} • {selectedExec.role}
                     </span>
-                    <h3 className="text-lg sm:text-xl font-black text-[#060721] leading-snug">{selectedExec.name}</h3>
-                    <p className="text-xs text-slate-500 font-semibold mt-0.5">{selectedExec.dept}</p>
+                    <h3 className="text-lg sm:text-xl font-black text-[#060721] dark:text-white leading-snug">{selectedExec.name}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">{selectedExec.dept}</p>
 
                     {selectedExec.instagram ? (
                       <a
@@ -212,7 +227,7 @@ export const ExecGrid = () => {
                 </div>
 
                 {selectedExec.quote && (
-                  <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-100 text-xs italic text-slate-700 flex items-start gap-2.5">
+                  <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900 text-xs italic text-slate-700 dark:text-slate-300 flex items-start gap-2.5">
                     <Quote className="w-4 h-4 shrink-0 text-[#2FA137] mt-0.5" />
                     <span>"{selectedExec.quote}"</span>
                   </div>
@@ -220,7 +235,7 @@ export const ExecGrid = () => {
 
                 <div>
                   <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-2">Executive Responsibilities & Biography</h4>
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
                     {selectedExec.bio}
                   </p>
                 </div>

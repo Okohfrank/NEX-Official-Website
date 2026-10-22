@@ -33,7 +33,7 @@ export const Hero = () => {
   }, []);
 
   return (
-    <section id="hero" className="relative bg-white pt-2 pb-0 overflow-hidden">
+    <section id="hero" className="relative bg-white dark:bg-black pt-2 pb-0 overflow-hidden">
       {/* Full-bleed Right Hero Image touching screen edge */}
       <div className="hidden lg:block absolute top-0 right-0 bottom-0 w-[48%] z-0 pointer-events-none">
         <div className="relative w-full h-full">
@@ -43,9 +43,9 @@ export const Hero = () => {
             className="w-full h-full object-cover object-center"
           />
           {/* Narrow Subtle Gradient Fade to White on left edge */}
-          <div className="absolute top-0 bottom-0 left-0 w-24 xl:w-36 bg-gradient-to-r from-white via-white/50 to-transparent z-10"></div>
+          <div className="absolute top-0 bottom-0 left-0 w-24 xl:w-36 bg-gradient-to-r from-white dark:from-black via-white/50 dark:via-black/50 to-transparent z-10"></div>
           {/* Smooth bottom blend fading to pure white at bottom of hero section */}
-          <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-white via-white/80 to-transparent z-10"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-white dark:from-black via-white/80 dark:via-black/80 to-transparent z-10"></div>
         </div>
       </div>
 
@@ -54,17 +54,17 @@ export const Hero = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Pitch & CTAs */}
           <div className="lg:col-span-7 space-y-6 pt-6 sm:pt-10 lg:pt-14">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#e6f6e8] text-[#060721] text-xs font-bold tracking-wider">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#e6f6e8] dark:bg-emerald-950/60 text-[#060721] dark:text-emerald-300 text-xs font-bold tracking-wider">
               <span>INNOVATE • COLLABORATE • </span>
               <span className="text-[#2FA137]">IMPACT</span>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#060721] tracking-tight leading-[1.15]">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#060721] dark:text-white tracking-tight leading-[1.15]">
               Engineering Solutions.<br />
               <span className="text-[#2FA137]">Transforming Society.</span>
             </h1>
 
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-medium max-w-xl">
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-medium max-w-xl">
               NEX brings together the brightest minds in Engineering, Agriculture, and Environmental Sciences to research, innovate, and build real solutions to real-world problems.
             </p>
 
@@ -79,10 +79,10 @@ export const Hero = () => {
 
               <button
                 onClick={() => setActiveTab('showcase')}
-                className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white border border-slate-200 text-[#060721] font-bold text-xs sm:text-sm px-4 sm:px-6 h-11 sm:h-12 rounded-xl hover:bg-slate-50 transition-all shadow-xs shrink-0"
+                className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-700 text-[#060721] dark:text-white font-bold text-xs sm:text-sm px-4 sm:px-6 h-11 sm:h-12 rounded-xl hover:bg-slate-50 dark:hover:bg-neutral-800 transition-all shadow-xs shrink-0"
               >
-                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                  <Play className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#060721] fill-[#060721] ml-0.5" />
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-100 dark:bg-neutral-800 flex items-center justify-center shrink-0">
+                  <Play className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#060721] dark:text-white fill-[#060721] dark:fill-white ml-0.5" />
                 </div>
                 <span>Watch Intro</span>
               </button>
@@ -91,20 +91,20 @@ export const Hero = () => {
             {/* Social Proof */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-2">
               <div className="flex -space-x-4 shrink-0">
-                <img className="inline-block h-14 w-14 sm:h-16 sm:w-16 rounded-full ring-4 ring-white shadow-lg object-cover object-top border-2 border-emerald-100" src="/landing-head1.jpeg" alt="NEX Student Member 1" />
-                <img className="inline-block h-14 w-14 sm:h-16 sm:w-16 rounded-full ring-4 ring-white shadow-lg object-cover object-top border-2 border-emerald-100" src="/landing-head2.jpeg" alt="NEX Student Member 2" />
-                <img className="inline-block h-14 w-14 sm:h-16 sm:w-16 rounded-full ring-4 ring-white shadow-lg object-cover object-top border-2 border-emerald-100" src="/landing-head3.jpeg" alt="NEX Student Member 3" />
-                <img className="inline-block h-14 w-14 sm:h-16 sm:w-16 rounded-full ring-4 ring-white shadow-lg object-cover object-top border-2 border-emerald-100" src="/landing-head4.jpeg" alt="NEX Student Member 4" />
+                <img className="inline-block h-14 w-14 sm:h-16 sm:w-16 rounded-full ring-4 ring-white dark:ring-neutral-900 shadow-lg object-cover object-top border-2 border-emerald-100 dark:border-emerald-900" src="/landing-head1.jpeg" alt="NEX Student Member 1" />
+                <img className="inline-block h-14 w-14 sm:h-16 sm:w-16 rounded-full ring-4 ring-white dark:ring-neutral-900 shadow-lg object-cover object-top border-2 border-emerald-100 dark:border-emerald-900" src="/landing-head2.jpeg" alt="NEX Student Member 2" />
+                <img className="inline-block h-14 w-14 sm:h-16 sm:w-16 rounded-full ring-4 ring-white dark:ring-neutral-900 shadow-lg object-cover object-top border-2 border-emerald-100 dark:border-emerald-900" src="/landing-head3.jpeg" alt="NEX Student Member 3" />
+                <img className="inline-block h-14 w-14 sm:h-16 sm:w-16 rounded-full ring-4 ring-white dark:ring-neutral-900 shadow-lg object-cover object-top border-2 border-emerald-100 dark:border-emerald-900" src="/landing-head4.jpeg" alt="NEX Student Member 4" />
               </div>
-              <p className="text-xs text-slate-600 font-medium leading-tight max-w-md">
-                Join <strong className="text-[#060721] font-bold">{heroStats.members}+</strong> Lagos State University Engineering, Agriculture & Environmental Sciences students already building the future
+              <p className="text-xs text-slate-600 dark:text-slate-400 font-medium leading-tight max-w-md">
+                Join <strong className="text-[#060721] dark:text-white font-bold">{heroStats.members}+</strong> Lagos State University Engineering, Agriculture & Environmental Sciences students already building the future
               </p>
             </div>
           </div>
 
           {/* Mobile Image View */}
           <div className="lg:hidden relative flex justify-center">
-            <div className="relative w-full max-w-md aspect-video sm:aspect-square rounded-3xl overflow-hidden shadow-xl border border-slate-200">
+            <div className="relative w-full max-w-md aspect-video sm:aspect-square rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-neutral-800">
               <img 
                 src="/hero.png" 
                 alt="NEX Engineering Students Collaborating" 
