@@ -46,7 +46,9 @@ export const ExecGrid = () => {
   const { executives } = useApp();
   const [selectedExec, setSelectedExec] = useState(null);
 
-  const sortedExecs = [...executives].sort((a, b) => a.order - b.order);
+  const sortedExecs = [...executives]
+    .filter(exec => exec && exec.name && !exec.name.includes('[DEPRECATED]') && ((exec.order ?? exec.exec_order) > 0))
+    .sort((a, b) => ((a.order ?? a.exec_order ?? 0) - (b.order ?? b.exec_order ?? 0)));
 
   return (
     <section id="leadership" className="py-12 sm:py-16 bg-white">
@@ -65,9 +67,9 @@ export const ExecGrid = () => {
 
         {/* Executive Team Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {sortedExecs.map(exec => (
+          {sortedExecs.map((exec, index) => (
             <GlassCard
-              key={exec.id}
+              key={exec.id || `exec-${index}`}
               onClick={() => setSelectedExec(exec)}
               className="flex flex-col justify-between group overflow-hidden p-0 bg-white border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-[#2FA137]/40 transition-all duration-300 hover:-translate-y-1"
             >
@@ -80,7 +82,7 @@ export const ExecGrid = () => {
                   className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute top-3 left-3 bg-[#060721]/90 text-white text-[11px] font-extrabold px-2.5 py-1 rounded-full border border-white/20 shadow-md">
-                  #{exec.order}
+                  #{exec.order || index + 1}
                 </div>
                 
                 {exec.instagram ? (

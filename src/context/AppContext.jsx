@@ -77,7 +77,7 @@ export const AppProvider = ({ children }) => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed && parsed.length > 0) return parsed;
+        if (parsed && parsed.length >= EXECUTIVES_DATA.length) return parsed;
       } catch (e) {}
     }
     return EXECUTIVES_DATA;
@@ -106,9 +106,24 @@ export const AppProvider = ({ children }) => {
         const { data: eData } = await supabase.from('events').select('*').order('created_at', { ascending: false });
         if (eData) setEvents(eData);
 
-        const { data: execData } = await supabase.from('executives').select('*').order('exec_order', { ascending: true });
+        const { data: execData } = await supabase
+          .from('executives')
+          .select('*')
+          .gt('exec_order', 0)
+          .order('exec_order', { ascending: true });
+
         if (execData && execData.length > 0) {
-          setExecutives(execData.map(e => ({ ...e, order: e.exec_order ?? e.order })));
+          const seen = new Set();
+          const cleanExecs = [];
+          for (const e of execData) {
+            const key = (e.name || '').trim().toLowerCase();
+            if (!seen.has(key) && !key.includes('[deprecated]')) {
+              seen.add(key);
+              cleanExecs.push({ ...e, order: e.exec_order ?? e.order });
+            }
+          }
+          setExecutives(cleanExecs);
+          try { localStorage.setItem('nex_executives', JSON.stringify(cleanExecs)); } catch (e) {}
         }
 
         const { data: certData } = await supabase.from('certificates').select('*').order('created_at', { ascending: false });
