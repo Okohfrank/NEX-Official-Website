@@ -49,8 +49,9 @@ export const Navbar = () => {
     { id: 'hero', label: 'Home' },
     { id: 'focus-areas', label: 'Focus Areas' },
     { id: 'founder', label: 'Founder & Vision' },
-    { id: 'executives', label: 'Executive Council' },
+    { id: 'leadership', label: 'Executive Council' },
     { id: 'showcase', label: 'Public Showcase' },
+    { id: 'events', label: 'Events & Cohort' },
     { id: 'partnerships', label: 'Partnerships' },
     { id: 'archive', label: 'Publications' }
   ];

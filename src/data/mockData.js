@@ -113,7 +113,7 @@ export const EXECUTIVES_DATA = [
     role: "Asst. Media & Communication Lead",
     dept: "Chemical Engineering",
     bio: "Samuel is a Graphic Designer, Cinematographer, and videographer operating at the intersection of engineering and creativity. As the Asst. Media and Comms Lead, he leverages digital media tools incorporated with technical camera expertise to direct NEX visual storytelling and project showcases.",
-    photo: "/Asst. Media and comm..jpeg",
+    photo: "/samuel.png",
     order: 10,
     linkedin: "https://www.linkedin.com/in/samuelgodonu",
     quote: "Reaching people through digital storytelling at the intersection of engineering and creativity."
@@ -128,6 +128,17 @@ export const EXECUTIVES_DATA = [
     order: 11,
     instagram: "https://www.instagram.com/dev.mubarak/",
     quote: "Architecting full-stack digital systems and web infrastructure for NEX."
+  },
+  {
+    id: "exec-12",
+    name: "Olujimi Owolabi",
+    role: "Public Relations Officer",
+    dept: "Chemical Engineering",
+    bio: "Olujimi Owolabi is a 400-level Chemical Engineering student at Lagos State University (LASU). He served as the 28th Public Relations Officer (PRO) of the Nigerian Society of Chemical Engineers (NSChE), Lagos State University Student Chapter, where he gained valuable experience in communication, publicity, and stakeholder engagement.",
+    photo: "/olujimi.png",
+    order: 12,
+    twitter: "https://x.com/pedro_0xp",
+    quote: "Driving communication, publicity, and stakeholder engagement for NEX."
   }
 ];
 
@@ -321,15 +332,6 @@ export const MOCK_USER_PROFILES = {
     },
     status: "Placed in Selected Project",
     points: 780
-  },
-  execAdmin: {
-    role: "exec_admin",
-    id: "usr-001",
-    name: "Engr. Femi Babatunde",
-    email: "femi.b@nex.org.ng",
-    dept: "Technical & Research Lead",
-    permissions: ["proposal_review", "group_placement", "analytics", "exec_mgmt", "content_mgmt"],
-    points: 1250
   }
 };
 

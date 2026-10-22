@@ -36,6 +36,12 @@ const LinkedinIcon = ({ className = "w-4 h-4" }) => (
   </svg>
 );
 
+const TwitterXIcon = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+);
+
 export const ExecGrid = () => {
   const { executives } = useApp();
   const [selectedExec, setSelectedExec] = useState(null);
@@ -98,6 +104,17 @@ export const ExecGrid = () => {
                     title="LinkedIn Profile"
                   >
                     <LinkedinIcon className="w-4 h-4" />
+                  </a>
+                ) : exec.twitter ? (
+                  <a
+                    href={exec.twitter}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    className="absolute top-3 right-3 p-2.5 bg-black hover:bg-neutral-800 text-white rounded-full transition-colors shadow-md flex items-center justify-center"
+                    title="X (Twitter) Profile"
+                  >
+                    <TwitterXIcon className="w-4 h-4" />
                   </a>
                 ) : null}
               </div>
@@ -177,6 +194,16 @@ export const ExecGrid = () => {
                       >
                         <LinkedinIcon className="w-3.5 h-3.5" />
                         <span>LinkedIn Profile</span>
+                      </a>
+                    ) : selectedExec.twitter ? (
+                      <a
+                        href={selectedExec.twitter}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 mt-2 text-xs font-bold text-white bg-black hover:bg-neutral-800 px-3 py-1 rounded-full transition-colors"
+                      >
+                        <TwitterXIcon className="w-3.5 h-3.5" />
+                        <span>X Profile</span>
                       </a>
                     ) : null}
                   </div>

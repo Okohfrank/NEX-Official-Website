@@ -1,6 +1,5 @@
 import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
-import { RoleSwitcherBar } from './components/layout/RoleSwitcherBar';
 import { Navbar } from './components/layout/Navbar';
 import { Sidebar } from './components/layout/Sidebar';
 import { MobileWorkspaceBar } from './components/layout/MobileWorkspaceBar';
@@ -13,6 +12,7 @@ import { FocusAreas } from './components/public/FocusAreas';
 import { FounderSpotlight } from './components/public/FounderSpotlight';
 import { ExecGrid } from './components/public/ExecGrid';
 import { ProjectShowcase } from './components/public/ProjectShowcase';
+import { EventsSection } from './components/public/EventsSection';
 import { PartnershipsModal } from './components/public/PartnershipsModal';
 import { PublicationsArchive } from './components/public/PublicationsArchive';
 
@@ -54,6 +54,7 @@ const AppContent = () => {
             <FounderSpotlight />
             <ExecGrid />
             <ProjectShowcase />
+            <EventsSection />
             <PartnershipsModal />
             <PublicationsArchive />
           </div>

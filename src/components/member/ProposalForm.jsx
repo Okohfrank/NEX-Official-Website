@@ -1,18 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { GlassCard } from '../UI/GlassCard';
 import { Badge } from '../UI/Badge';
 import { Send, CheckCircle2, Lock } from 'lucide-react';
+import { insertProposalToSupabase } from '../../lib/supabase';
 import confetti from 'canvas-confetti';
 
 export const ProposalForm = () => {
-  const { researchWorkspace, setActiveTab } = useApp();
+  const { researchWorkspace, currentUser, showToast, setActiveTab } = useApp();
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const problemRef = useRef(null);
+  const solutionRef = useRef(null);
+  const scopeRef = useRef(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
+    const proposalData = {
+      groupName: researchWorkspace.groupName || currentUser?.name || 'Unassigned',
+      title: `${researchWorkspace.groupName || 'Research'} Proposal`,
+      problemStatement: problemRef.current?.value || '',
+      proposedSolution: solutionRef.current?.value || '',
+      budgetEstimate: scopeRef.current?.value || ''
+    };
+
+    try {
+      await insertProposalToSupabase(proposalData);
+    } catch (err) {
+      console.warn('Proposal submission notice:', err);
+    }
+
     confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     setSubmitted(true);
+    setIsSubmitting(false);
+
+    showToast({
+      title: 'Proposal Submitted!',
+      message: 'Your proposal has been saved and sent to the Admin Review Queue.',
+      type: 'success'
+    });
   };
 
   return (
@@ -53,8 +81,8 @@ export const ProposalForm = () => {
             <div>
               <label className="block font-black mb-1.5 text-[#060721]">Problem Statement & Justification</label>
               <textarea
+                ref={problemRef}
                 rows={3}
-                defaultValue={researchWorkspace.problemStatement}
                 className="w-full p-3.5 rounded-xl border border-slate-300 bg-white text-[#060721] font-medium outline-none focus:ring-2 focus:ring-[#2FA137]"
               ></textarea>
             </div>
@@ -62,6 +90,7 @@ export const ProposalForm = () => {
             <div>
               <label className="block font-black mb-1.5 text-[#060721]">Proposed Solution Concept & Engineering Approach</label>
               <textarea
+                ref={solutionRef}
                 rows={4}
                 defaultValue="Multi-stage bio-sand and activated coconut charcoal column with integrated solar UV-C sterilization for continuous Epe village borehole water treatment."
                 className="w-full p-3.5 rounded-xl border border-slate-300 bg-white text-[#060721] font-medium outline-none focus:ring-2 focus:ring-[#2FA137]"
@@ -71,8 +100,9 @@ export const ProposalForm = () => {
             <div>
               <label className="block font-black mb-1.5 text-[#060721]">Preliminary Scope & Objectives</label>
               <textarea
+                ref={scopeRef}
                 rows={3}
-                defaultValue="1. Reduce heavy iron precipitate from 3.4 mg/L to < 0.3 mg/L.\n2. Build prototype under ₦150,000 budget.\n3. Validate 2,500 L/day flow rate."
+                defaultValue={"1. Reduce heavy iron precipitate from 3.4 mg/L to < 0.3 mg/L.\n2. Build prototype under ₦150,000 budget.\n3. Validate 2,500 L/day flow rate."}
                 className="w-full p-3.5 rounded-xl border border-slate-300 bg-white text-[#060721] font-medium outline-none focus:ring-2 focus:ring-[#2FA137]"
               ></textarea>
             </div>

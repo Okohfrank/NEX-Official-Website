@@ -211,7 +211,6 @@ export const LoginView = () => {
 
             <button
               type="submit"
-              onClick={handleVerifyExecPasscode}
               className="w-full py-3.5 rounded-xl bg-[#060721] hover:bg-[#060721]/90 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
             >
               <ShieldCheck className="w-4 h-4 text-[#2FA137]" />

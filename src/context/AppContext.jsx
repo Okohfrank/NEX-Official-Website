@@ -98,6 +98,7 @@ export const AppProvider = ({ children }) => {
   // Supabase Hydration Effect
   useEffect(() => {
     const hydrateData = async () => {
+      if (!supabase) return;
       try {
         const { data: bData } = await supabase.from('bounties').select('*').order('created_at', { ascending: false });
         if (bData) setBounties(bData);
