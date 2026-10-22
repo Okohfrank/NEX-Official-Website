@@ -77,7 +77,11 @@ export const AppProvider = ({ children }) => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed && parsed.length >= EXECUTIVES_DATA.length) return parsed;
+        if (parsed && parsed.length === EXECUTIVES_DATA.length) {
+          const validNames = new Set(EXECUTIVES_DATA.map(e => e.name.toLowerCase()));
+          const isValid = parsed.every(p => validNames.has((p.name || '').toLowerCase()));
+          if (isValid) return parsed;
+        }
       } catch (e) {}
     }
     return EXECUTIVES_DATA;

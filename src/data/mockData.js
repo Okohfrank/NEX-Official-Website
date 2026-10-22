@@ -76,67 +76,34 @@ export const EXECUTIVES_DATA = [
   },
   {
     id: "exec-7",
-    name: "Oke Habeeb Oluwatobiloba",
-    role: "School of Agriculture Coordinator I",
-    dept: "Animal Science",
-    bio: "Oke Habeeb Oluwatobiloba is the Founder and Executive Director of HABSFOUNDATION and a final-year Animal Science student at Lagos State University (LASU), Epe Campus. He is passionate about student leadership, youth development, and community impact, with experience coordinating initiatives that empower young people and promote positive change.",
-    photo: "/Agric Coordinator 1.jpeg",
-    order: 7,
-    linkedin: "https://www.linkedin.com/in/habeeb-oke-65b46728a",
-    quote: "Empowering young people and driving sustainable agricultural impact."
-  },
-  {
-    id: "exec-8",
-    name: "Paul Glory Ojima",
-    role: "EV Coordinator I (Environmental Sciences)",
-    dept: "Industrial Design",
-    bio: "Paul Glory Ojima is an Industrial Design student at Lagos State University (LASU) with a passion for leadership, creativity, and student development. As the EV Coordinator I, she is committed to fostering collaboration, supporting student growth, and contributing to initiatives that create a positive impact within the university community.",
-    photo: "/EV Coordinator 1.jpeg",
-    order: 8,
-    linkedin: "https://linkedin.com",
-    quote: "Fostering collaboration, student growth, and creative environmental design."
-  },
-  {
-    id: "exec-9",
-    name: "Mutmainnah Giwa Oyindamola",
-    role: "EV Coordinator II (Environmental Sciences)",
-    dept: "Environmental Management",
-    bio: "Mutmainnah Giwa is an Environmental Management student at Lagos State University (LASU). She is passionate about leadership, teamwork, and using creativity to make a positive impact. She enjoys organizing projects, creating engaging content, and contributing to initiatives that foster growth within the university community.",
-    photo: "/EV Coordinator 2.jpeg",
-    order: 9,
-    linkedin: "https://www.linkedin.com/in/mutmainnah-giwa-a2566233b",
-    quote: "Using creativity, teamwork, and environmental management to foster community growth."
-  },
-  {
-    id: "exec-10",
     name: "Godonu Samuel",
     role: "Asst. Media & Communication Lead",
     dept: "Chemical Engineering",
     bio: "Samuel is a Graphic Designer, Cinematographer, and videographer operating at the intersection of engineering and creativity. As the Asst. Media and Comms Lead, he leverages digital media tools incorporated with technical camera expertise to direct NEX visual storytelling and project showcases.",
     photo: "/samuel.png",
-    order: 10,
+    order: 7,
     linkedin: "https://www.linkedin.com/in/samuelgodonu",
     quote: "Reaching people through digital storytelling at the intersection of engineering and creativity."
   },
   {
-    id: "exec-11",
+    id: "exec-8",
     name: "Dev Mubarak",
     role: "Head of Digital Infrastructure & Web Systems",
     dept: "Computer Science & Web Systems",
     bio: "Dev Mubarak is the Head of Digital Infrastructure & Web Systems at NEX. He leads the engineering, architecture, and deployment of NEX web platforms, digital systems, and database infrastructure, driving technological excellence across the organization.",
     photo: "/mubarak.jpg",
-    order: 11,
+    order: 8,
     instagram: "https://www.instagram.com/dev.mubarak/",
     quote: "Architecting full-stack digital systems and web infrastructure for NEX."
   },
   {
-    id: "exec-12",
+    id: "exec-9",
     name: "Olujimi Owolabi",
     role: "Public Relations Officer",
     dept: "Chemical Engineering",
     bio: "Olujimi Owolabi is a 400-level Chemical Engineering student at Lagos State University (LASU). He served as the 28th Public Relations Officer (PRO) of the Nigerian Society of Chemical Engineers (NSChE), Lagos State University Student Chapter, where he gained valuable experience in communication, publicity, and stakeholder engagement.",
     photo: "/olujimi.png",
-    order: 12,
+    order: 9,
     twitter: "https://x.com/pedro_0xp",
     quote: "Driving communication, publicity, and stakeholder engagement for NEX."
   }
